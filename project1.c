@@ -1,4 +1,4 @@
-#define BUFFER_SIZE 1024
+#define BUFFER_SIZE 8//1024
 #define TOTALNUMBER 8
 #include <stdio.h>
 #include <stdlib.h>
@@ -33,7 +33,8 @@ int main(int argc,char *argv[]){
 	if(argc==1 || argv[1] == "-"){
 		//No file 
 		currentValue currentValues;
-		currentValues = readIn(0);
+		//currentValues = readIn(0);
+		getchar();
 		noFile(currentValues);
 	 }else if(argc==2){
 		//Only two, so check for file
@@ -43,6 +44,7 @@ int main(int argc,char *argv[]){
 }
 
 void noFile(currentValue charList){
+	charList.bSize = 0;
 	output(charList);
 }
 
@@ -56,36 +58,38 @@ void hasFile(char* argv){
       perror("FILE NOT FOUND!");
     }else{
       //Current segment is file type
-      output(readIn(fd));
+	currentValue test = {fd,argv};
+      output(test);
       }
 }
 
 //Output the given values
 void output(currentValue charList){
+	currentValue current;	
+	int fd = charList.bSize;
+	//current = readIn(fd);
 	printf("Original ASCII\t\tDecimal\tParity\tT-Error\n");
 	printf("-------\t--------------\t-------\t-------\t-------\n");
-	int i = 0;
-	char* current;
 	
-      while(i<charList.bSize){
-	    current = printEight(charList.currentWord,i);
+      while(current.bSize != -1){
+	current = readIn(fd);
+	if(current.bSize !=-1){
 	    //Run value check
 	    //Print out copy of values
-	    printf("%s ",current);
-
+	    printf("%s ",current.currentWord);
+		
 	    //Print out as ASCII
-	    printf("%s\t\t",binaryToAscii(current,0));
+	    printf("%s\t\t",binaryToAscii(current.currentWord,0));
 	  
 	    //Print out as Decimal
-	    printf("%d\t",binaryToDecimal(current,0));
+	    printf("%d\t",binaryToDecimal(current.currentWord,0));
 
 	    //Print parity
-	    printf("%s\t",parity(current,0));
+	    printf("%s\t",parity(current.currentWord,0));
 		
 	    //Print error
-	    printf("%s\n",tError(current,0));
-	  i+=8;
-	
+	    printf("%s\n",tError(current.currentWord,0));	
+	    }
       }
 }
 
@@ -118,8 +122,28 @@ char* printEight(char* fullList, int start){
 currentValue readIn(int fd){
 
   char *Buffer = malloc(sizeof(char)*BUFFER_SIZE);
-  int bSize = read(fd,Buffer,BUFFER_SIZE);
-	return pad(npStrlen(Buffer),Buffer);
+  char *letter = malloc(sizeof(char)*1);
+  int i;
+  int bSize = read(fd,letter,1);
+//Written to remove all non 1's, 0's
+  for(i =0;i<BUFFER_SIZE && bSize !=0;i++){
+	//Pull out values not 1 or zero
+	if(letter[0] != '1' && letter[0] != '0'){
+	//skip back and read last file
+		i-=1;
+	}else{
+	 	Buffer[i] = letter[0];
+		printf("%s",Buffer);
+	}
+		bSize = read(fd,letter,1);	
+	}
+
+  //int bSize = read(fd,Buffer,BUFFER_SIZE);
+	if(bSize==0 && i==0){
+		return (currentValue){-1,Buffer};
+	}else{
+		return pad(npStrlen(Buffer),Buffer);
+	}
 }
  
 //Add 0 to the end of the list
@@ -130,7 +154,7 @@ if(bSize>0 &&  bSize%TOTALNUMBER!=0){
     for(i=bSize; i<bSize + (TOTALNUMBER-(bSize%TOTALNUMBER));i++){
       Buffer[i] = '0';
     }
-    bSize +=(TOTALNUMBER-(bSize%TOTALNUMBER));
+    	bSize +=(TOTALNUMBER-(bSize%TOTALNUMBER));
     }
     
     currentValue next = {bSize, Buffer};
