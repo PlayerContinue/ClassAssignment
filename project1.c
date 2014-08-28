@@ -5,7 +5,7 @@
 #include <unistd.h>
 #include <fcntl.h>
 
-
+//Typedef
 typedef enum {false,true} bool;
 typedef struct { 
 	int bSize;
@@ -16,13 +16,15 @@ typedef struct {
 //Prototype
 currentValue readIn(int fd);
 int binaryToDecimal(char*, int);
-char binaryToAscii(char*,int);
+char* binaryToAscii(char*,int);
 char* parity(char*,int);
 int parityValue(char*,int);
 char* printEight(char*, int);
 void hasFile(char*);
 void noFile(currentValue);
 currentValue pad(int, char*);
+void output(currentValue);
+
 //Main launch function
 int main(int argc,const char *argv[]){
 	
@@ -40,26 +42,7 @@ int main(int argc,const char *argv[]){
 }
 
 void noFile(currentValue charList){
-	charList = pad(charList.bSize,charList.currentWord);
-      int i = 0;
-      while(i<charList.bSize){
-	
-	
-	    //Run value check
-	    //Print out copy of values
-	    printf("%s ",printEight(charList.currentWord,i));
-
-	    //Print out as ASCII
-	    printf("%c ",binaryToAscii(charList.currentWord,i));
-	  
-	    //Print out as Decimal
-	    printf("%d ",binaryToDecimal(charList.currentWord,i));
-
-	    //Print parity
-	    printf("%s\n",parity(charList.currentWord,i));
-	  i+=8;
-	
-      }
+	output(pad(charList.bSize,charList.currentWord));
 }
 
 void hasFile(char* argv){
@@ -69,27 +52,31 @@ void hasFile(char* argv){
       perror("FILE NOT FOUND!");
     }else{
       //Current segment is file type
-      currentValue charList = readIn(fd);
-      int i = 0;
+      output(readIn(fd));
+      }
+}
+
+//Output the given values
+void output(currentValue charList){
+	printf("Original ASCII\tDecimal\tParity\n");
+	printf("-------\t-------\t-------\t-------\n");
+	int i = 0;
       while(i<charList.bSize){
-	     printf("%d, %d\n", i, charList.bSize);
-	
 	    //Run value check
 	    //Print out copy of values
 	    printf("%s ",printEight(charList.currentWord,i));
 
 	    //Print out as ASCII
-	    printf("%c ",binaryToAscii(charList.currentWord,i));
+	    printf("%s\t",binaryToAscii(charList.currentWord,i));
 	  
 	    //Print out as Decimal
-	    printf("%d ",binaryToDecimal(charList.currentWord,i));
+	    printf("%d\t",binaryToDecimal(charList.currentWord,i));
 
 	    //Print parity
 	    printf("%s\n",parity(charList.currentWord,i));
 	  i+=8;
 	
       }
-}
 }
 
 //Print the next eight value
@@ -100,10 +87,8 @@ char* printEight(char* fullList, int start){
 	
 	for(i=start;i<start+TOTALNUMBER;i++){
 		eightChar[i-start] = fullList[i];
-		if(fullList[i]=='\n'){
-			printf("fail");
-		}
 	}
+	
 	return eightChar;
 }
 
@@ -144,7 +129,7 @@ int binaryToDecimal(char* binLis,int startPos){
   int i,total,previous=2;
   total = binLis[startPos+(TOTALNUMBER-1)]-48;
 
-  for(i=startPos+TOTALNUMBER-2;i>=startPos;i--){
+  for(i=startPos+TOTALNUMBER-2;i>=startPos+1;i--){
     total += (binLis[i]-48)*previous;
     previous = previous*2;
   }
@@ -152,9 +137,82 @@ int binaryToDecimal(char* binLis,int startPos){
 }
 
 //Turn binary values into Ascii
-char binaryToAscii(char* binLis,int start){
-  return (char)(binaryToDecimal(binLis, start)-binLis[start+(TOTALNUMBER-1)]-48);
-  
+char* binaryToAscii(char* binLis,int start){
+  int decimalValue = (binaryToDecimal(binLis, start));
+  switch(decimalValue){
+	  case 0: 
+		  return "NUL \\0";
+	  case 1:
+		  return "SOH (start of heading)";
+	  case 2:
+		  return "STX (start of text)";
+	  case 3: 
+		  return "ETX (end of text)";
+	  case 4: 
+		  return "EOT (end of transmission)";
+	  case 5: 
+		  return "ENQ (enquiry)";
+	  case 6:
+		  return "ACK (acknowledge)";
+	  case 7:
+		  return "BEL '\\a' (bell)";
+	  case 8:
+		  return "BS '\\b' (backspace)";
+	  case 9: 
+		  return "HT '\\t' (horizontal tab)";
+	  case 10: 
+		  return "LF '\\n' (new line)";
+	  case 11:
+		  return "VT  '\\v' (vertical tab)";
+	  case 12:
+		  return "FF  '\\f' (form feed)";
+	  case 13:
+		  return "CR  '\\r' (carriage ret)";
+	  case 14:
+		  return "SO  (shift out)";
+	  case 15: 
+		  return "SO  (shift out)";
+	  case 16: 
+		  return "SO  (shift out)";
+	  case 17:
+		  return "DC1 (device control 1)";
+	  case 18:
+		  return "DC2 (device control 2)";
+	  case 19:
+		  return "DC3 (device control 3)";
+	  case 20:
+		  return "DC4 (device control 4)";
+	  case 21:
+		  return "NAK (negative ack.)";
+	  case 22:
+		  return "SYN (synchronous idle)";
+	  case 23:
+		  return "ETB (end of trans. blk)";
+	  case 24:
+		  return "CAN (cancel)";
+	  case 25: 
+		  return "EM  (end of medium)";
+	  case 26:
+		  return "SUB (substitute)";
+	  case 27:
+		  return "ESC (escape)";
+	  case 28:
+		  return "FS  (file separator)";
+	  case 29:
+		  return "GS (group separator)";
+	  case 30:
+		  return "FS  (file separator)";
+	  case 31:
+		  return "FS  (file separator)";
+	  case 32: 
+		  return "SPACE";
+	  case 127:
+		  return "DEL";
+	  
+  }
+  char* point = malloc(sizeof(char)*1);
+		  point[0] = (char) decimalValue;
+		  return point;
 }
 
 //Get the parity update
@@ -166,9 +224,10 @@ char* parity(char* binLis, int start){
     return "ODD";
   }
 }
+
 int parityValue(char* binLis, int start){
   int i,total;
-  for(i=start;i<start + TOTALNUMBER;i++){
+  for(i=start+1;i<start + TOTALNUMBER;i++){
     total = binLis[i]-48;
   }
   
