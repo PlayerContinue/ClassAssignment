@@ -24,7 +24,7 @@ void hasFile(char*);
 void noFile(currentValue);
 currentValue pad(int, char*);
 void output(currentValue);
-
+char* tError(char*, int);
 //Main launch function
 int main(int argc,const char *argv[]){
 	
@@ -58,8 +58,8 @@ void hasFile(char* argv){
 
 //Output the given values
 void output(currentValue charList){
-	printf("Original ASCII\tDecimal\tParity\n");
-	printf("-------\t-------\t-------\t-------\n");
+	printf("Original ASCII\t\tDecimal\tParity\tT-Error\n");
+	printf("-------\t--------------\t-------\t-------\t-------\n");
 	int i = 0;
       while(i<charList.bSize){
 	    //Run value check
@@ -67,13 +67,16 @@ void output(currentValue charList){
 	    printf("%s ",printEight(charList.currentWord,i));
 
 	    //Print out as ASCII
-	    printf("%s\t",binaryToAscii(charList.currentWord,i));
+	    printf("%s\t\t",binaryToAscii(charList.currentWord,i));
 	  
 	    //Print out as Decimal
 	    printf("%d\t",binaryToDecimal(charList.currentWord,i));
 
 	    //Print parity
-	    printf("%s\n",parity(charList.currentWord,i));
+	    printf("%s\t",parity(charList.currentWord,i));
+		
+	    //Print error
+	    printf("%s\n",tError(charList.currentWord,i));
 	  i+=8;
 	
       }
@@ -233,14 +236,18 @@ char* parity(char* binLis, int start){
 }
 
 int parityValue(char* binLis, int start){
-  int i,total;
-  for(i=start+1;i<start + TOTALNUMBER;i++){
-    total = binLis[i]-48;
+  int i,total=0;
+  for(i=start;i<start + TOTALNUMBER;i++){
+    total ^= binLis[i]-48;
   }
-  
-  return (total%2);
-
-
-
+  return total;
 }
+
+//Check for Error
+char* tError(char* binLis, int start){
+   int i,total;
+   total=parityValue(binLis,start)^(binLis[start]-48); 
+   return ((total == (binLis[start]-48)) ? "True" : "False");
+}
+
 
