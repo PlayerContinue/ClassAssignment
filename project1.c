@@ -133,7 +133,6 @@ currentValue readIn(int fd){
 		i-=1;
 	}else{
 	 	Buffer[i] = letter[0];
-		printf("%s",Buffer);
 	}
 		bSize = read(fd,letter,1);	
 	}
