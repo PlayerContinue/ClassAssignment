@@ -15,7 +15,7 @@ typedef struct {
 
 //Prototype
 currentValue readIn(int fd);
-int binaryToDecimal(char*, int);
+int binaryToDecimal(char*,int);
 char* binaryToAscii(char*,int);
 char* parity(char*,int);
 int parityValue(char*,int);
@@ -26,15 +26,15 @@ currentValue pad(int, char*);
 void output(currentValue);
 char* tError(char*, int);
 int npStrlen(char*);
+
 //Main launch function
 int main(int argc,char *argv[]){
 	
 	if(argc==1 || argv[1] == "-"){
 		//No file 
-		char* currentValues = malloc(sizeof(char)*BUFFER_SIZE);
-		scanf("%s",currentValues);
-		int length = npStrlen(currentValues); 
-		noFile((currentValue){length,currentValues});
+		currentValue currentValues;
+		currentValues = readIn(0);
+		noFile(currentValues);
 	 }else if(argc==2){
 		//Only two, so check for file
 		hasFile(argv[1]);
@@ -43,8 +43,11 @@ int main(int argc,char *argv[]){
 }
 
 void noFile(currentValue charList){
-	output(pad(charList.bSize,charList.currentWord));
+	output(charList);
 }
+
+
+
 
 void hasFile(char* argv){
  int fd = open(argv,O_RDONLY);
@@ -62,24 +65,25 @@ void output(currentValue charList){
 	printf("Original ASCII\t\tDecimal\tParity\tT-Error\n");
 	printf("-------\t--------------\t-------\t-------\t-------\n");
 	int i = 0;
-	
+	char* current;
 	
       while(i<charList.bSize){
+	    current = printEight(charList.currentWord,i);
 	    //Run value check
 	    //Print out copy of values
-	    printf("%s ",printEight(charList.currentWord,i));
+	    printf("%s ",current);
 
 	    //Print out as ASCII
-	    printf("%s\t\t",binaryToAscii(charList.currentWord,i));
+	    printf("%s\t\t",binaryToAscii(current,0));
 	  
 	    //Print out as Decimal
-	    printf("%d\t",binaryToDecimal(charList.currentWord,i));
+	    printf("%d\t",binaryToDecimal(current,0));
 
 	    //Print parity
-	    printf("%s\t",parity(charList.currentWord,i));
+	    printf("%s\t",parity(current,0));
 		
 	    //Print error
-	    printf("%s\n",tError(charList.currentWord,i));
+	    printf("%s\n",tError(current,0));
 	  i+=8;
 	
       }
@@ -115,10 +119,7 @@ currentValue readIn(int fd){
 
   char *Buffer = malloc(sizeof(char)*BUFFER_SIZE);
   int bSize = read(fd,Buffer,BUFFER_SIZE);
- 
-	return pad(bSize,Buffer);
-
-    
+	return pad(npStrlen(Buffer),Buffer);
 }
  
 //Add 0 to the end of the list
@@ -131,26 +132,25 @@ if(bSize>0 &&  bSize%TOTALNUMBER!=0){
     }
     bSize +=(TOTALNUMBER-(bSize%TOTALNUMBER));
     }
-  
+    
     currentValue next = {bSize, Buffer};
     return next;
 }
 
 //Binary to Decimal
 int binaryToDecimal(char* binLis,int startPos){
-  int i,total,previous=2;
-  total = binLis[startPos+(TOTALNUMBER-1)]-48;
-
-  for(i=startPos+TOTALNUMBER-2;i>=startPos+1;i--){
-    total += (binLis[i]-48)*previous;
-    previous = previous*2;
-  }
-  return total;
+	int i,total,previous=2;
+	total = binLis[startPos+(TOTALNUMBER-1)]-48;
+	for(i=startPos+TOTALNUMBER-2;i>=startPos+1;i--){
+		total += (binLis[i]-48)*previous;
+		previous = previous*2;
+	}
+	return total;
 }
 
 //Turn binary values into Ascii
-char* binaryToAscii(char* binLis,int start){
-  int decimalValue = (binaryToDecimal(binLis, start));
+char* binaryToAscii(char* binLis, int startPos){
+  int decimalValue = (binaryToDecimal(binLis,startPos));
   switch(decimalValue){
 	  case 0: 
 		  return "NUL \\0";
