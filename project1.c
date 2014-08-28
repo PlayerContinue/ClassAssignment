@@ -93,6 +93,7 @@ char* printEight(char* fullList, int start){
 		
 		eightChar[i-start] = fullList[i];
 		
+
 	}
 	
 	return eightChar;
