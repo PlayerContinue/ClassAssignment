@@ -178,9 +178,9 @@ char* binaryToAscii(char* binLis,int start){
 	  case 14:
 		  return "SO  (shift out)";
 	  case 15: 
-		  return "SO  (shift out)";
+		  return "SI  (shift in)";
 	  case 16: 
-		  return "SO  (shift out)";
+		  return "DLE (data link escape)";
 	  case 17:
 		  return "DC1 (device control 1)";
 	  case 18:
@@ -208,9 +208,9 @@ char* binaryToAscii(char* binLis,int start){
 	  case 29:
 		  return "GS (group separator)";
 	  case 30:
-		  return "FS  (file separator)";
+		  return "RS  (record separator)";
 	  case 31:
-		  return "FS  (file separator)";
+		  return "US  (unit separator)";
 	  case 32: 
 		  return "SPACE";
 	  case 127:
