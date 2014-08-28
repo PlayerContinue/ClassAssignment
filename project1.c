@@ -25,14 +25,15 @@ void noFile(currentValue);
 currentValue pad(int, char*);
 void output(currentValue);
 char* tError(char*, int);
+int npStrlen(char*);
 //Main launch function
-int main(int argc,const char *argv[]){
+int main(int argc,char *argv[]){
 	
 	if(argc==1 || argv[1] == "-"){
 		//No file 
 		char* currentValues = malloc(sizeof(char)*BUFFER_SIZE);
 		scanf("%s",currentValues);
-		int length = strlen(currentValues); 
+		int length = npStrlen(currentValues); 
 		noFile((currentValue){length,currentValues});
 	 }else if(argc==2){
 		//Only two, so check for file
@@ -61,6 +62,8 @@ void output(currentValue charList){
 	printf("Original ASCII\t\tDecimal\tParity\tT-Error\n");
 	printf("-------\t--------------\t-------\t-------\t-------\n");
 	int i = 0;
+	
+	
       while(i<charList.bSize){
 	    //Run value check
 	    //Print out copy of values
@@ -122,7 +125,6 @@ currentValue readIn(int fd){
 currentValue pad(int bSize,char* Buffer){
 if(bSize>0 &&  bSize%TOTALNUMBER!=0){
 	  int i;
-	  printf("%d %d\n",bSize,(bSize%TOTALNUMBER));
     //If too small, then add zeros
     for(i=bSize; i<bSize + (TOTALNUMBER-(bSize%TOTALNUMBER));i++){
       Buffer[i] = '0';
@@ -250,4 +252,10 @@ char* tError(char* binLis, int start){
    return ((total == (binLis[start]-48)) ? "True" : "False");
 }
 
+//get string length
+int npStrlen(char* s){
+	int i;
+	for(i=0; s[i] != '\0';i++);
+	return i;
 
+}
