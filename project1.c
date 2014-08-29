@@ -75,8 +75,10 @@ void output(currentValue charList){
 		//special case for stdin
 		charList.currentWord = malloc(sizeof(char)*1024);
 		read(fd,charList.currentWord,1024);
-		current.bSize = npStrlen(charList.currentWord);
+		//hotfix for removing \n during user input (try and remove altogether
+		current.bSize = npStrlen(charList.currentWord)-1;
 		charList = pad(current.bSize,charList.currentWord);
+		
 	}
 	printf("Original ASCII\t\tDecimal\tParity\tT-Error\n");
 	printf("-------\t--------------\t-------\t-------\t-------\n");
@@ -145,16 +147,16 @@ int ngStrcomp(char* s, char* t){
 //Print the next eight value
 char* printEight(char* fullList, int start){
 	int i;
-	
+	int j;
 	char* eightChar = malloc(sizeof(char)*TOTALNUMBER);
 	
-	for(i=start;i<start+TOTALNUMBER;i++){
-		if(fullList[i]=='\n'){
-			//Hotfix, figure out better option later
-			fullList[i] = '0';
+	for(i=start, j=0;i<start+TOTALNUMBER;i++,j++){
+		if(fullList[i]!='1' && fullList[i]!='0'){
+				j--;
+				start++;
 		}
 		
-		eightChar[i-start] = fullList[i];
+		eightChar[j] = fullList[i];
 
 
 	}
@@ -320,7 +322,7 @@ int parityValue(char* binLis, int start){
 //Check for Error
 char* tError(char* binLis, int start){
    int i,total;
-   total=parityValue(binLis,start)^(binLis[start]-48); 
+   total=parityValue(binLis,start)^(binLis[start + (TOTALNUMBER-1)]-48); 
    return ((total == (binLis[start]-48)) ? "True" : "False");
 }
 
