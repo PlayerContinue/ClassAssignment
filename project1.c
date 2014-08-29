@@ -16,12 +16,17 @@ typedef struct {
 //Prototype
 currentValue readIn(int fd);
 int binaryToDecimal(char*,int);
+char* intToAscii(int);
 char* binaryToAscii(char*,int);
+
 char* parity(char*,int);
 int parityValue(char*,int);
+
 char* printEight(char*, int);
+
 void hasFile(char*);
 void noFile(currentValue);
+
 currentValue pad(int, char*);
 void output(currentValue);
 char* tError(char*, int);
@@ -33,8 +38,6 @@ int main(int argc,char *argv[]){
 	if(argc==1 || argv[1] == "-"){
 		//No file 
 		currentValue currentValues;
-		//currentValues = readIn(0);
-		getchar();
 		noFile(currentValues);
 	 }else if(argc==2){
 		//Only two, so check for file
@@ -67,22 +70,38 @@ void hasFile(char* argv){
 void output(currentValue charList){
 	currentValue current;	
 	int fd = charList.bSize;
-	//current = readIn(fd);
+
+	if(fd == 0){
+		//special case for stdin
+		charList.currentWord = malloc(sizeof(char)*1024);
+		read(fd,charList.currentWord,1024);
+		current.bSize = npStrlen(charList.currentWord);
+		charList = pad(current.bSize,charList.currentWord);
+	}
 	printf("Original ASCII\t\tDecimal\tParity\tT-Error\n");
 	printf("-------\t--------------\t-------\t-------\t-------\n");
 	
+	int i=0,toValue;
       while(current.bSize != -1){
-	current = readIn(fd);
+	if(fd!=0){
+		current = readIn(fd);
+	}else{
+		current.currentWord = printEight(charList.currentWord,i);
+		
+	}
+	if(current.bSize <= i && fd==0){
+		current.bSize = -1;
+	}
 	if(current.bSize !=-1){
 	    //Run value check
 	    //Print out copy of values
 	    printf("%s ",current.currentWord);
-		
+		toValue = binaryToDecimal(current.currentWord,0);
 	    //Print out as ASCII
-	    printf("%s\t\t",binaryToAscii(current.currentWord,0));
+	    printf("%s\t\t",intToAscii(toValue));
 	  
 	    //Print out as Decimal
-	    printf("%d\t",binaryToDecimal(current.currentWord,0));
+	    printf("%d\t",toValue);
 
 	    //Print parity
 	    printf("%s\t",parity(current.currentWord,0));
@@ -90,6 +109,7 @@ void output(currentValue charList){
 	    //Print error
 	    printf("%s\n",tError(current.currentWord,0));	
 	    }
+	i+=8;
       }
 }
 
@@ -102,7 +122,7 @@ char* printEight(char* fullList, int start){
 	for(i=start;i<start+TOTALNUMBER;i++){
 		if(fullList[i]=='\n'){
 			//Hotfix, figure out better option later
-			fullList[i] = '1';
+			fullList[i] = '0';
 		}
 		
 		eightChar[i-start] = fullList[i];
@@ -170,10 +190,14 @@ int binaryToDecimal(char* binLis,int startPos){
 	}
 	return total;
 }
+char* binaryToAscii(char* binLis,int startPos){
+	int decimalValue = (binaryToDecimal(binLis,startPos));
+	return intToAscii(decimalValue);
+}
 
 //Turn binary values into Ascii
-char* binaryToAscii(char* binLis, int startPos){
-  int decimalValue = (binaryToDecimal(binLis,startPos));
+char* intToAscii(int decimalValue){
+  
   switch(decimalValue){
 	  case 0: 
 		  return "NUL \\0";
