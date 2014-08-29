@@ -8,4 +8,7 @@ t:
 	gcc project1.c -g && ./a.out
 
 full:
-	 gcc createTest.c -o createTest.out && gcc project1.c && ./createTest.out && ./a.out test2.txt
+	 gcc createTest.c -o createTest.out && gcc project1.c -g && ./createTest.out && ./a.out test2.txt
+
+test:
+	gcc project1.c -g && ./a.out -
