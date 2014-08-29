@@ -31,13 +31,16 @@ currentValue pad(int, char*);
 void output(currentValue);
 char* tError(char*, int);
 int npStrlen(char*);
-
+char* removeString(char*,char);
+int ngStrcomp(char*, char*);
 //Main launch function
 int main(int argc,char *argv[]){
-	
-	if(argc==1 || argv[1] == "-"){
+
+	if(argc==1 || ngStrcomp(removeString(argv[1],'\n'),"-") == 0){
 		//No file 
+		
 		currentValue currentValues;
+		currentValues.bSize = 0;
 		noFile(currentValues);
 	 }else if(argc==2){
 		//Only two, so check for file
@@ -50,9 +53,6 @@ void noFile(currentValue charList){
 	charList.bSize = 0;
 	output(charList);
 }
-
-
-
 
 void hasFile(char* argv){
  int fd = open(argv,O_RDONLY);
@@ -113,6 +113,35 @@ void output(currentValue charList){
       }
 }
 
+
+//Remove a character from a string
+char* removeString(char* s1, char s2){
+	int size = sizeof(s1)/sizeof(s1[0]),i,j;
+	char* Buffer = malloc(sizeof(char)*size); 
+	for(i=0,j=0;i<size;i++){
+		if(s1[i]!=s2){
+			Buffer[i] = s1[i];
+		}else{
+			j-1;
+		}
+	}
+	return Buffer;
+	
+}
+
+//Compare to strings
+int ngStrcomp(char* s, char* t){
+	int i;
+	
+	for (i = 0; s[i] == t[i]; i++){
+		if (s[i] == '\0')
+			return 0;
+	}
+	
+	return s[i] - t[i];
+	
+}
+
 //Print the next eight value
 char* printEight(char* fullList, int start){
 	int i;
@@ -132,10 +161,6 @@ char* printEight(char* fullList, int start){
 	
 	return eightChar;
 }
-
-
-
-
 
 
 //Break the list of binary values into groups of eight
