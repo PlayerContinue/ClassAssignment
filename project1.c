@@ -137,9 +137,8 @@ char* removeString(char* s1, char s2){
 	char* Buffer = malloc(sizeof(char)*size); 
 	for(i=0,j=0;i<size;i++){
 		if(s1[i]!=s2){
-			Buffer[i] = s1[i];
-		}else{
-			j-1;
+			Buffer[j] = s1[i];
+            j++;
 		}
 	}
 	return Buffer;
@@ -244,67 +243,67 @@ char* intToAscii(int decimalValue){
 	  case 0: 
 		  return "NUL \\0";
 	  case 1:
-		  return "SOH (start of heading)";
+		  return "SOH";
 	  case 2:
-		  return "STX (start of text)";
+		  return "STX";
 	  case 3: 
-		  return "ETX (end of text)";
+		  return "ETX";
 	  case 4: 
-		  return "EOT (end of transmission)";
+		  return "EOT";
 	  case 5: 
-		  return "ENQ (enquiry)";
+		  return "ENQ";
 	  case 6:
-		  return "ACK (acknowledge)";
+		  return "ACK";
 	  case 7:
-		  return "BEL '\\a' (bell)";
+		  return "BEL '\\a'";
 	  case 8:
-		  return "BS '\\b' (backspace)";
+		  return "BS '\\b'";
 	  case 9: 
-		  return "HT '\\t' (horizontal tab)";
+		  return "HT '\\t'";
 	  case 10: 
-		  return "LF '\\n' (new line)";
+		  return "LF '\\n'";
 	  case 11:
-		  return "VT  '\\v' (vertical tab)";
+		  return "VT  '\\v'";
 	  case 12:
-		  return "FF  '\\f' (form feed)";
+		  return "FF  '\\f'";
 	  case 13:
-		  return "CR  '\\r' (carriage ret)";
+		  return "CR  '\\r'";
 	  case 14:
-		  return "SO  (shift out)";
+		  return "SO";
 	  case 15: 
-		  return "SI  (shift in)";
+		  return "SI";
 	  case 16: 
-		  return "DLE (data link escape)";
+		  return "DLE";
 	  case 17:
-		  return "DC1 (device control 1)";
+		  return "DC1";
 	  case 18:
-		  return "DC2 (device control 2)";
+		  return "DC2";
 	  case 19:
-		  return "DC3 (device control 3)";
+		  return "DC3";
 	  case 20:
-		  return "DC4 (device control 4)";
+		  return "DC4";
 	  case 21:
-		  return "NAK (negative ack.)";
+		  return "NAK";
 	  case 22:
-		  return "SYN (synchronous idle)";
+		  return "SYN";
 	  case 23:
-		  return "ETB (end of trans. blk)";
+		  return "ETB";
 	  case 24:
-		  return "CAN (cancel)";
+		  return "CAN";
 	  case 25: 
-		  return "EM  (end of medium)";
+		  return "EM";
 	  case 26:
-		  return "SUB (substitute)";
+		  return "SUB";
 	  case 27:
-		  return "ESC (escape)";
+		  return "ESC";
 	  case 28:
-		  return "FS  (file separator)";
+		  return "FS";
 	  case 29:
-		  return "GS (group separator)";
+		  return "GS";
 	  case 30:
-		  return "RS  (record separator)";
+		  return "RS";
 	  case 31:
-		  return "US  (unit separator)";
+		  return "US";
 	  case 32: 
 		  return "SPACE";
 	  case 127:
