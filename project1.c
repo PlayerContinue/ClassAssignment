@@ -75,6 +75,18 @@ void output(currentValue charList){
 		//special case for stdin
 		charList.currentWord = malloc(sizeof(char)*1024);
 		read(fd,charList.currentWord,1024);
+		char* Buffer = malloc(sizeof(char)*1024);
+		int j,k;
+		//Hot fix, if continued then replace main read function with better buffer
+		for(j=0,k=0;j<1024;j++){
+		 if(charList.currentWord[j]!='1' && charList.currentWord[j]!='0'){
+			
+		  }else{
+		   	Buffer[k] = charList.currentWord[j];
+			k++;
+			}
+		}
+		charList.currentWord = Buffer;
 		current.bSize = npStrlen(charList.currentWord);
 		charList = pad(current.bSize,charList.currentWord);
 	}
