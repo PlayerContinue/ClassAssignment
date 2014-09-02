@@ -338,9 +338,6 @@ int parityValue(char* binLis, int start){
 char* tError(char* binLis, int start){
    int i,total;
 
-   total=parityValue(binLis,start)^(binLis[start + (TOTALNUMBER-1)]-48); 
-   return ((total == (binLis[start]-48)) ? "True" : "False");
-
    total=parityValue(binLis,start)^(binLis[start]-48); 
    return ((total == (binLis[start]-48)) ? "False" : "True");
 }
