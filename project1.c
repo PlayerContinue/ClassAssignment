@@ -1,5 +1,6 @@
 #define BUFFER_SIZE 8//1024
 #define TOTALNUMBER 8
+#define MAX_BUFFER_SIZE 1024
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -18,6 +19,8 @@ currentValue readIn(int fd);
 int binaryToDecimal(char*,int);
 char* intToAscii(int);
 char* binaryToAscii(char*,int);
+
+int readInText(char*);
 
 char* parity(char*,int);
 int parityValue(char*,int);
@@ -71,14 +74,10 @@ void output(currentValue charList){
 	currentValue current;	
 	int fd = charList.bSize;
 
-	if(fd == 0){
+	/*if(fd == 0){
 		//special case for stdin
 		charList.currentWord = malloc(sizeof(char)*1024);
 		read(fd,charList.currentWord,1024);
-
-		//hotfix for removing \n during user input (try and remove altogether
-		current.bSize = npStrlen(charList.currentWord)-1;
-
 		char* Buffer = malloc(sizeof(char)*1024);
 		int j,k;
 		//Hot fix, if continued then replace main read function with better buffer
@@ -93,20 +92,14 @@ void output(currentValue charList){
 		charList.currentWord = Buffer;
 		current.bSize = npStrlen(charList.currentWord);
 		charList = pad(current.bSize,charList.currentWord);
-		
-	}
+	}*/
 	printf("Original ASCII\t\tDecimal\tParity\tT-Error\n");
 	printf("-------\t--------------\t-------\t-------\t-------\n");
-	
+	current.bSize = readInText(current.currentWord);
+	current = pad(current.bSize,current.currentWord);
 	int i=0,toValue;
-      while(current.bSize != -1){
-	if(fd!=0){
-		current = readIn(fd);
-	}else{
-		current.currentWord = printEight(charList.currentWord,i);
-		
-	}
-	if(current.bSize <= i && fd==0){
+      while(i < current.bSize){
+	if(current.bSize <= i){
 		current.bSize = -1;
 	}
 	if(current.bSize !=-1){
@@ -162,16 +155,16 @@ int ngStrcomp(char* s, char* t){
 //Print the next eight value
 char* printEight(char* fullList, int start){
 	int i;
-	int j;
+	
 	char* eightChar = malloc(sizeof(char)*TOTALNUMBER);
 	
-	for(i=start, j=0;i<start+TOTALNUMBER;i++,j++){
-		if(fullList[i]!='1' && fullList[i]!='0'){
-				j--;
-				start++;
+	for(i=start;i<start+TOTALNUMBER;i++){
+		if(fullList[i]=='\n'){
+			//Hotfix, figure out better option later
+			fullList[i] = '0';
 		}
 		
-		eightChar[j] = fullList[i];
+		eightChar[i-start] = fullList[i];
 
 
 	}
@@ -337,7 +330,6 @@ int parityValue(char* binLis, int start){
 //Check for Error
 char* tError(char* binLis, int start){
    int i,total;
-
    total=parityValue(binLis,start)^(binLis[start]-48); 
    return ((total == (binLis[start]-48)) ? "False" : "True");
 }
@@ -349,3 +341,29 @@ int npStrlen(char* s){
 	return i;
 
 }
+
+//Upgraded read from file
+//Removes any value not one or zero
+//Returns the number of characters in the buffer
+int readInText(int fd,char* Buffer){
+	char* Buffering = malloc(sizeof(char)*MAX_BUFFER_SIZE);
+	fseek(fp,0L,SEEK_END);
+	int size = ftell(fp);
+	fseek(fp,0L,SEEK_SET);
+	Buffer = malloc(sizeof(char)*size);
+	int bSize,i=0,j=0;
+	bSize = read(fd,Buffer,MAX_BUFFER_SIZE);
+	//Read through entire file
+	while(bSize !=-1){
+		//Copy the buffer into the new Buffer
+		for(i=0;i<bSize;i++){
+			if(Buffering[i] =='1' || Buffering[i] == '0'){
+				Buffer[j] = Buffering[i];
+				j++;
+			}
+		}
+		bSize = read(fd,Buffer,MAX_BUFFER_SIZE);
+	}
+}
+
+
