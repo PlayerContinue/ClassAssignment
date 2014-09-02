@@ -75,10 +75,10 @@ void output(currentValue charList){
 		//special case for stdin
 		charList.currentWord = malloc(sizeof(char)*1024);
 		read(fd,charList.currentWord,1024);
-<<<<<<< HEAD
+
 		//hotfix for removing \n during user input (try and remove altogether
 		current.bSize = npStrlen(charList.currentWord)-1;
-=======
+
 		char* Buffer = malloc(sizeof(char)*1024);
 		int j,k;
 		//Hot fix, if continued then replace main read function with better buffer
@@ -92,7 +92,6 @@ void output(currentValue charList){
 		}
 		charList.currentWord = Buffer;
 		current.bSize = npStrlen(charList.currentWord);
->>>>>>> currentBuild
 		charList = pad(current.bSize,charList.currentWord);
 		
 	}
@@ -338,13 +337,12 @@ int parityValue(char* binLis, int start){
 //Check for Error
 char* tError(char* binLis, int start){
    int i,total;
-<<<<<<< HEAD
+
    total=parityValue(binLis,start)^(binLis[start + (TOTALNUMBER-1)]-48); 
    return ((total == (binLis[start]-48)) ? "True" : "False");
-=======
+
    total=parityValue(binLis,start)^(binLis[start]-48); 
    return ((total == (binLis[start]-48)) ? "False" : "True");
->>>>>>> currentBuild
 }
 
 //get string length
