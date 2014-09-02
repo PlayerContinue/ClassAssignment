@@ -1,5 +1,6 @@
 #define BUFFER_SIZE 8//1024
 #define TOTALNUMBER 8
+#define MAX_BUFFER_SIZE 1024
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -18,7 +19,7 @@ currentValue readIn(int fd);
 int binaryToDecimal(char*,int);
 char* intToAscii(int);
 char* binaryToAscii(char*,int);
-
+void read_In_File(int);
 char* parity(char*,int);
 int parityValue(char*,int);
 
@@ -27,7 +28,7 @@ char* printEight(char*, int);
 void hasFile(char*);
 void noFile(currentValue);
 
-currentValue pad(int, char*);
+int pad(int, char*);
 void output(currentValue);
 char* tError(char*, int);
 int npStrlen(char*);
@@ -51,7 +52,7 @@ int main(int argc,char *argv[]){
 
 void noFile(currentValue charList){
 	charList.bSize = 0;
-	output(charList);
+	read_In_File(0);
 }
 
 void hasFile(char* argv){
@@ -61,75 +62,46 @@ void hasFile(char* argv){
       perror("FILE NOT FOUND!");
     }else{
       //Current segment is file type
-	currentValue test = {fd,argv};
-      output(test);
+      read_In_File(fd);
       }
 }
 
-//Output the given values
-void output(currentValue charList){
-	currentValue current;	
-	int fd = charList.bSize;
-
-	if(fd == 0){
-		//special case for stdin
-		charList.currentWord = malloc(sizeof(char)*1024);
-		read(fd,charList.currentWord,1024);
-
-		//hotfix for removing \n during user input (try and remove altogether
-		current.bSize = npStrlen(charList.currentWord)-1;
-
-		char* Buffer = malloc(sizeof(char)*1024);
-		int j,k;
-		//Hot fix, if continued then replace main read function with better buffer
-		for(j=0,k=0;j<1024;j++){
-		 if(charList.currentWord[j]!='1' && charList.currentWord[j]!='0'){
-			
-		  }else{
-		   	Buffer[k] = charList.currentWord[j];
-			k++;
-			}
-		}
-		charList.currentWord = Buffer;
-		current.bSize = npStrlen(charList.currentWord);
-		charList = pad(current.bSize,charList.currentWord);
-		
-	}
+void read_In_File(int fd){
+	int bSize,i,toValue;
+	char* Buffer = malloc(sizeof(char)*MAX_BUFFER_SIZE);
+	char* binary= malloc(sizeof(char)*TOTALNUMBER);
+	bSize = read(fd,Buffer,MAX_BUFFER_SIZE);
+	
 	printf("Original ASCII\t\tDecimal\tParity\tT-Error\n");
 	printf("-------\t--------------\t-------\t-------\t-------\n");
-	
-	int i=0,toValue;
-      while(current.bSize != -1){
-	if(fd!=0){
-		current = readIn(fd);
-	}else{
-		current.currentWord = printEight(charList.currentWord,i);
-		
-	}
-	if(current.bSize <= i && fd==0){
-		current.bSize = -1;
-	}
-	if(current.bSize !=-1){
-	    //Run value check
-	    //Print out copy of values
-	    printf("%s ",current.currentWord);
-		toValue = binaryToDecimal(current.currentWord,0);
-	    //Print out as ASCII
-	    printf("%s\t\t",intToAscii(toValue));
+	while(bSize > 0){
+		//Remove extra values from end of file
+		if(bSize%8!=0){
+		 bSize--;
+		}
+		bSize = pad(bSize,Buffer);
+		for(i=0;i<bSize;i+=TOTALNUMBER){
+		binary = printEight(Buffer,i);
+		 //Run value check
+	   	 //Print out copy of values
+	   	 printf("%s ",binary);
+		toValue = binaryToDecimal(binary,0);
+	    	//Print out as ASCII
+	   	 printf("%s\t\t",intToAscii(toValue));
 	  
-	    //Print out as Decimal
-	    printf("%d\t",toValue);
+	    	//Print out as Decimal
+	    	printf("%d\t",toValue);
 
-	    //Print parity
-	    printf("%s\t",parity(current.currentWord,0));
+	   	 //Print parity
+	   	 printf("%s\t",parity(binary,0));
 		
-	    //Print error
-	    printf("%s\n",tError(current.currentWord,0));	
-	    }
-	i+=8;
-      }
-}
+	    	//Print error
+	    	printf("%s\n",tError(binary,0));
+		}
+		bSize = read(fd,Buffer,MAX_BUFFER_SIZE);	
+	}
 
+}
 
 //Remove a character from a string
 char* removeString(char* s1, char s2){
@@ -138,7 +110,7 @@ char* removeString(char* s1, char s2){
 	for(i=0,j=0;i<size;i++){
 		if(s1[i]!=s2){
 			Buffer[j] = s1[i];
-            j++;
+            		j++;
 		}
 	}
 	return Buffer;
@@ -178,36 +150,9 @@ char* printEight(char* fullList, int start){
 	return eightChar;
 }
 
-
-//Break the list of binary values into groups of eight
-currentValue readIn(int fd){
-
-  char *Buffer = malloc(sizeof(char)*BUFFER_SIZE);
-  char *letter = malloc(sizeof(char)*1);
-  int i;
-  int bSize = read(fd,letter,1);
-//Written to remove all non 1's, 0's
-  for(i =0;i<BUFFER_SIZE && bSize !=0;i++){
-	//Pull out values not 1 or zero
-	if(letter[0] != '1' && letter[0] != '0'){
-	//skip back and read last file
-		i-=1;
-	}else{
-	 	Buffer[i] = letter[0];
-	}
-		bSize = read(fd,letter,1);	
-	}
-
-  //int bSize = read(fd,Buffer,BUFFER_SIZE);
-	if(bSize==0 && i==0){
-		return (currentValue){-1,Buffer};
-	}else{
-		return pad(npStrlen(Buffer),Buffer);
-	}
-}
  
 //Add 0 to the end of the list
-currentValue pad(int bSize,char* Buffer){
+int pad(int bSize,char* Buffer){
 if(bSize>0 &&  bSize%TOTALNUMBER!=0){
 	  int i;
     //If too small, then add zeros
@@ -216,9 +161,8 @@ if(bSize>0 &&  bSize%TOTALNUMBER!=0){
     }
     	bSize +=(TOTALNUMBER-(bSize%TOTALNUMBER));
     }
-    
-    currentValue next = {bSize, Buffer};
-    return next;
+   
+    return bSize;
 }
 
 //Binary to Decimal
@@ -348,3 +292,5 @@ int npStrlen(char* s){
 	return i;
 
 }
+
+
