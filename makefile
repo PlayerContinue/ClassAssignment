@@ -1,5 +1,5 @@
 all:
-	gcc project1.c
+	gcc project1.c -o zero-one.out
 
 s:
 	gcc project1.c -g && ./a.out test2.txt
