@@ -10,6 +10,10 @@ The current Assignment, called Making Sense of One's and Zero's has three main p
 
 3) Find the Parity Value
 
+And one extra
+
+4) Check for error
+
 ---------------
 
 Status: Complete
