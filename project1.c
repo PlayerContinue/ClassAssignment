@@ -29,7 +29,6 @@ void hasFile(char*);
 void noFile(currentValue);
 
 int pad(int, char*);
-void output(currentValue);
 char* tError(char*, int);
 int npStrlen(char*);
 char* removeString(char*,char);
@@ -70,8 +69,10 @@ void read_In_File(int fd){
 	int bSize,i,toValue;
 	char* Buffer = malloc(sizeof(char)*MAX_BUFFER_SIZE);
 	char* binary= malloc(sizeof(char)*TOTALNUMBER);
-	bSize = read(fd,Buffer,MAX_BUFFER_SIZE);
 	
+	bSize = read(fd,Buffer,MAX_BUFFER_SIZE);
+	//Create a check to see if it was a human input
+	bool checkForHuman = (Buffer[bSize-1]=='\n' ? false : true);
 	printf("Original ASCII\t\tDecimal\tParity\tT-Error\n");
 	printf("-------\t--------------\t-------\t-------\t-------\n");
 	while(bSize > 0){
@@ -98,7 +99,11 @@ void read_In_File(int fd){
 	    	//Print error
 	    	printf("%s\n",tError(binary,0));
 		}
-		bSize = read(fd,Buffer,MAX_BUFFER_SIZE);	
+		if(checkForHuman == true){
+		 bSize = read(fd,Buffer,MAX_BUFFER_SIZE);
+		}else{
+		 bSize = -1;
+		}	
 	}
 
 }
