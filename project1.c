@@ -23,7 +23,7 @@ void read_In_File(int);
 char* parity(char*,int);
 int parityValue(char*,int);
 
-char* printEight(char*, int);
+void printEight(char*, int, char*);
 
 void hasFile(char*);
 void noFile(currentValue);
@@ -67,8 +67,8 @@ void hasFile(char* argv){
 
 void read_In_File(int fd){
 	int bSize,i,toValue;
-	char* Buffer = malloc(sizeof(char)*MAX_BUFFER_SIZE);
-	char* binary= malloc(sizeof(char)*TOTALNUMBER);
+	char* Buffer = (char*) malloc(sizeof(char)*MAX_BUFFER_SIZE);
+	char* binary = (char*) malloc(sizeof(char)*(TOTALNUMBER+1));
 	
 	bSize = read(fd,Buffer,MAX_BUFFER_SIZE);
 	//Create a check to see if it was a human input
@@ -82,7 +82,7 @@ void read_In_File(int fd){
 		}
 		bSize = pad(bSize,Buffer);
 		for(i=0;i<bSize;i+=TOTALNUMBER){
-		binary = printEight(Buffer,i);
+		printEight(Buffer,i,binary);
 		 //Run value check
 	   	 //Print out copy of values
 	   	printf("%s ",binary);
@@ -101,13 +101,19 @@ void read_In_File(int fd){
 	    	//Print error
 			printf("%s\n",tError(binary,0));
 		}
+		 
 		if(checkForHuman == true){
+		
 		 bSize = read(fd,Buffer,MAX_BUFFER_SIZE);
 		}else{
 		 bSize = -1;
+		 
 		}	
+		
 	}
-
+	//Clean up memory
+	free(binary);
+	free(Buffer);
 }
 
 //Remove a character from a string
@@ -138,10 +144,10 @@ int ngStrcomp(char* s, char* t){
 }
 
 //Print the next eight value
-char* printEight(char* fullList, int start){
+void printEight(char* fullList, int start, char* eightChar){
 	int i;
 	int j;
-	char* eightChar = malloc(sizeof(char)*(TOTALNUMBER+1));
+	//char* eightChar = malloc(sizeof(char)*(TOTALNUMBER+1));
 	
 	for(i=start, j=0;i<start+TOTALNUMBER;i++,j++){
 		if(fullList[i]!='1' && fullList[i]!='0'){
@@ -154,7 +160,6 @@ char* printEight(char* fullList, int start){
 
 	}
 	eightChar[TOTALNUMBER] = '\0';
-	return eightChar;
 }
 
  
