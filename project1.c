@@ -286,8 +286,8 @@ int parityValue(char* binLis, int start){
 char* tError(char* binLis, int start){
    int i,total;
 
-   total=parityValue(binLis,start)^(binLis[start]-48); 
-   return ((total == (binLis[start]-48)) ? "False" : "True");
+   total=parityValue(binLis,start); 
+   return ((total == 0) ? "False" : "True");
 }
 
 //get string length
