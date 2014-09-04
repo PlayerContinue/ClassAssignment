@@ -85,19 +85,21 @@ void read_In_File(int fd){
 		binary = printEight(Buffer,i);
 		 //Run value check
 	   	 //Print out copy of values
-	   	 printf("%s ",binary);
+	   	printf("%s ",binary);
+		
 		toValue = binaryToDecimal(binary,0);
-	    	//Print out as ASCII
-	   	 printf("%s\t\t",intToAscii(toValue));
+	    
+		//Print out as ASCII
+	   	printf("%s\t\t",intToAscii(toValue));
 	  
-	    	//Print out as Decimal
-	    	printf("%d\t",toValue);
+	    //Print out as Decimal
+	    printf("%d\t",toValue);
 
 	   	 //Print parity
 	   	 printf("%s\t",parity(binary,0));
 		
 	    	//Print error
-	    	printf("%s\n",tError(binary,0));
+			printf("%s\n",tError(binary,0));
 		}
 		if(checkForHuman == true){
 		 bSize = read(fd,Buffer,MAX_BUFFER_SIZE);
@@ -139,7 +141,7 @@ int ngStrcomp(char* s, char* t){
 char* printEight(char* fullList, int start){
 	int i;
 	int j;
-	char* eightChar = malloc(sizeof(char)*TOTALNUMBER);
+	char* eightChar = malloc(sizeof(char)*(TOTALNUMBER+1));
 	
 	for(i=start, j=0;i<start+TOTALNUMBER;i++,j++){
 		if(fullList[i]!='1' && fullList[i]!='0'){
@@ -151,7 +153,7 @@ char* printEight(char* fullList, int start){
 
 
 	}
-	
+	eightChar[TOTALNUMBER] = '\0';
 	return eightChar;
 }
 
@@ -190,77 +192,78 @@ char* intToAscii(int decimalValue){
   
   switch(decimalValue){
 	  case 0: 
-		  return "NUL \\0";
+		  return "NUL \\0\0";
 	  case 1:
-		  return "SOH";
+		  return "SOH\0";
 	  case 2:
-		  return "STX";
+		  return "STX\0";
 	  case 3: 
-		  return "ETX";
+		  return "ETX\0";
 	  case 4: 
-		  return "EOT";
+		  return "EOT\0";
 	  case 5: 
-		  return "ENQ";
+		  return "ENQ\0";
 	  case 6:
-		  return "ACK";
+		  return "ACK\0";
 	  case 7:
-		  return "BEL '\\a'";
+		  return "BEL '\\a'\0";
 	  case 8:
-		  return "BS '\\b'";
+		  return "BS '\\b'\0";
 	  case 9: 
-		  return "HT '\\t'";
+		  return "HT '\\t'\0";
 	  case 10: 
-		  return "LF '\\n'";
+		  return "LF '\\n'\0";
 	  case 11:
-		  return "VT  '\\v'";
+		  return "VT  '\\v'\0";
 	  case 12:
-		  return "FF  '\\f'";
+		  return "FF  '\\f'\0";
 	  case 13:
-		  return "CR  '\\r'";
+		  return "CR  '\\r'\0";
 	  case 14:
-		  return "SO";
+		  return "SO\0";
 	  case 15: 
-		  return "SI";
+		  return "SI\0";
 	  case 16: 
-		  return "DLE";
+		  return "DLE\0";
 	  case 17:
-		  return "DC1";
+		  return "DC1\0";
 	  case 18:
-		  return "DC2";
+		  return "DC2\0";
 	  case 19:
-		  return "DC3";
+		  return "DC3\0";
 	  case 20:
-		  return "DC4";
+		  return "DC4\0";
 	  case 21:
-		  return "NAK";
+		  return "NAK\0";
 	  case 22:
-		  return "SYN";
+		  return "SYN\0";
 	  case 23:
-		  return "ETB";
+		  return "ETB\0";
 	  case 24:
-		  return "CAN";
+		  return "CAN\0";
 	  case 25: 
-		  return "EM";
+		  return "EM\0";
 	  case 26:
-		  return "SUB";
+		  return "SUB\0";
 	  case 27:
-		  return "ESC";
+		  return "ESC\0";
 	  case 28:
-		  return "FS";
+		  return "FS\0";
 	  case 29:
-		  return "GS";
+		  return "GS\0";
 	  case 30:
-		  return "RS";
+		  return "RS\0";
 	  case 31:
-		  return "US";
+		  return "US\0";
 	  case 32: 
-		  return "SPACE";
+		  return "SPACE\0";
 	  case 127:
-		  return "DEL";
+		  return "DEL\0";
 	  
   }
-  char* point = malloc(sizeof(char)*1);
+  char* point = malloc(sizeof(char)*2);
 		  point[0] = (char) decimalValue;
+		  point[1] = '\0';
 		  return point;
 }
 
