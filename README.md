@@ -1,4 +1,5 @@
 ClassAssignment
+Ones and Zero's by David Greenberg
 ===============
 
 Assignment's for COMP 322 Fall 2014.
