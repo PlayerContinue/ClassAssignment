@@ -13,10 +13,11 @@ Finished State = 0%
 //Main funtion
 int main(int argc, char* argv){
  struct tms localtime;
+ clock_t currentTime;
  pid_t pid;
  int status;
   //Get current times
-  times(&localtime);
+  currentTime = times(&localtime);
 	
 
 //Fork a new process
@@ -29,16 +30,16 @@ int main(int argc, char* argv){
     perror("Failure occured. Could not create new fork"); 
   }else{ //is parent
   //Print the length of time since...
-    printf("Start: %ju\n",(uintmax_t)localtime.tms_utime);
+    printf("Start: %jd\n",(intmax_t)currentTime);
   pid_t retval;
   //Wait for child to finish
   retval =  waitpid(pid ,&status,0);
     //print PID, PPID, childId,return status
   printf("PID: %lu,PPID: %lu, CID: %lu, RETVAL:%d\n",getpid(),getppid(),retval, status); 
   //Print usertime, system time, cuser time, and csys time
-    times(&localtime);
+    currentTime = times(&localtime);
      printf("USER: %jd, SYS:%jd\nCUSER: %jd, CSYS: %jd\n",localtime.tms_utime,localtime.tms_stime,localtime.tms_cutime,localtime.tms_cstime);
-     printf("STOP: %jd\n",localtime.tms_utime);
+     printf("STOP: %jd\n",currentTime);
   }
 
  
