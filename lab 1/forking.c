@@ -26,8 +26,10 @@ int main(int argc, char* argv){
   if(pid == 0){//Is the child
     //Print process id and parent id
     printf("PID: %lu,PPID: %lu\n",getpid(),getppid());
+	 
+	
   }else if(pid==-1){
-    perror("Failure occured. Could not create new fork"); 
+    perror("Failure occured. Could not create new fork."); 
   }else{ //is parent
   //Print the length of time since...
     printf("Start: %jd\n",(intmax_t)currentTime);
@@ -42,8 +44,6 @@ int main(int argc, char* argv){
      printf("STOP: %jd\n",currentTime);
   }
 
- 
-  getppid();
 //Report values
   return 0;
 //
