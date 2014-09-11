@@ -10,20 +10,33 @@ Finished State = 0%
 #include <sys/wait.h>
 #include <unistd.h>
 #include <stdint.h>
+
+void printValues(pid_t);
+
 //Main funtion
 int main(int argc, char* argv){
- struct tms localtime;
- clock_t currentTime;
+ 
  pid_t pid;
- int status;
-  //Get current times
-  currentTime = times(&localtime);
+ 
 	
 
 //Fork a new process
  
   pid = fork();
-  if(pid == 0){//Is the child
+  printValues(pid);
+//Report values
+  return 0;
+//
+}
+
+//print function
+void printValues(pid_t pid){
+  struct tms localtime;
+  clock_t currentTime;
+  int status;
+ 
+
+	if(pid == 0){//Is the child
     //Print process id and parent id
     printf("PPID: %d, PID: %d\n",(int)getppid(),(int)getpid());
 	 
@@ -31,6 +44,8 @@ int main(int argc, char* argv){
   }else if(pid==-1){
     perror("Failure occured. Could not create new fork."); 
   }else{ //is parent
+ //Get current times
+  currentTime = times(&localtime);
   //Print the length of time since...
     printf("Start: %d\n",(int)currentTime);
   pid_t childId;
@@ -44,7 +59,6 @@ int main(int argc, char* argv){
      printf("STOP: %d\n",(int)currentTime);
   }
 
-//Report values
-  return 0;
-//
+
+
 }
