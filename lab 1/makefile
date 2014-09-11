@@ -1,5 +1,5 @@
-﻿# Name:
-# Project:
+# name: David Greenberg 
+# Project: Time And Forking Children
 
 
 # This is a Makefile for my lab assignment. It allows me to easily and accurately rebuild
@@ -11,8 +11,8 @@
 # EXECUTABLES is a Make Variable (similar to an environment variable) that lists all the
 # "executables" associated with the lab. 
 EXECUTABLES=time-4-baby-and-me
-SRC=hello.c
-OBJ=hello.o
+SRC=forking.c
+OBJ=forking.o
 
 
 # The CC and CFLAGS variables are defined to ensure I'm using the native compiler and
@@ -25,18 +25,19 @@ CFLAGS=-g
 # be created. I.e., all the executables
 all: $(EXECUTABLES)
 
-
+createNew: 
+	
 
 
 # On the following lines (which _must_ start with a tab), are the commands I need to type -- 
 # each time my source file is modified.
 $(EXECUTABLES):
-        $(CC) $(CFLAGS) -c $(SRC)
-        $(CC) $(CFLAGS) -o $@ $(OBJ)
+	$(CC) $(CFLAGS) -c $(SRC)
+	$(CC) $(CFLAGS) -o $@ $(OBJ)
 
 
 # By convention, I always have a target called
 # "clean" that I used to define all temporary
 # or intermediates.
 clean:
-        rm -f $(EXECUTABLES) $(OBJ) *~
+	rm -f $(EXECUTABLES) $(OBJ) *~
