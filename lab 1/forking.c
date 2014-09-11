@@ -17,11 +17,7 @@ void printValues(pid_t);
 int main(int argc, char* argv){
  
  pid_t pid;
- 
-	
-
 //Fork a new process
- 
   pid = fork();
   printValues(pid);
 //Report values
