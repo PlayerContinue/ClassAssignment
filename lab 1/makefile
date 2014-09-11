@@ -23,15 +23,11 @@ CFLAGS=-g
 
 # Here is my default target for the Makefile.  When I type make, this first target will
 # be created. I.e., all the executables
-all: $(EXECUTABLES)
-
-createNew: 
-	
-
+all: $(EXECUTABLES) 
 
 # On the following lines (which _must_ start with a tab), are the commands I need to type -- 
 # each time my source file is modified.
-$(EXECUTABLES):
+$(EXECUTABLES): $(SRC)
 	$(CC) $(CFLAGS) -c $(SRC)
 	$(CC) $(CFLAGS) -o $@ $(OBJ)
 
