@@ -71,10 +71,18 @@ int performWhenParent(pid_t child_pid,int argv,char** argc){
 //Perform this function when the process is a child
 int performWhenChild(int argv,char** argc, char* env[]){
 	int i;
-	char** newArgc = malloc(sizeof(char*)*(argv-2));
+char** newArgc;
+	if(argv-2>0){
+	newArgc = malloc(sizeof(char*)*(argv-2));
 	//Create a new arrray for the commands	
 	for(i=2;i<argv;i++){
 		newArgc[i-2] = argc[i];
+	}
+	
+	}else{
+	//Keep newArgc from being null
+	newArgc = malloc(sizeof(char*)*(1));
+	newArgc[0] = "0";
 	}
 	//Check for arguments
 	if(argv > 1){
