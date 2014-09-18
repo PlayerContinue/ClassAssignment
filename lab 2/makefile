@@ -9,12 +9,12 @@
 # EXECUTABLES is a Make Variable (similar to an environment variable) that lists all the
 # "executables" associated with the lab. 
 EXECUTABLES=launch tube
-SRC=launch.c tube.c
-OBJ=launch.o tube.o
-TUBE_SRC= tube.c
-TUBE_OBJ= tube.o
+SRC=tube.c launch.c
+OBJ = $(SRC:.c=.o)
+TUBE_SRC=tube.c
+TUBE_OBJ=tube.o
 LAUNCH_SRC=launch.c
-LAUNCH_OBJ=tube.o
+LAUNCH_OBJ=launch.o
 # The CC and CFLAGS variables are defined to ensure I'm using the native compiler and
 # that the correct command-line options are set
 CC=gcc
@@ -23,11 +23,11 @@ CFLAGS=-g
 
 # Here is my default target for the Makefile.  When I type make, this first target will
 # be created. I.e., all the executables
-all: $(EXECUTABLES) 
+all:$(EXECUTABLES)
 
 # On the following lines (which _must_ start with a tab), are the commands I need to type -- 
 # each time my source file is modified.
-$(EXECUTABLES): $(SRC)
+$(EXECUTABLES):$(SRC)
 	$(CC) $(CFLAGS) -c $(SRC)
 	$(CC) $(CFLAGS) -o $@ $(OBJ)
 
@@ -36,16 +36,12 @@ $(EXECUTABLES): $(SRC)
 # "clean" that I used to define all temporary
 # or intermediates.
 clean:
-	rm -f $(EXECUTABLES) $(OBJ) *~
+	rm -f $(EXECUTABLES) $(TUBE_OBJ) $(LAUNCH_OBJ) *~
 
-tube: $(TUBE_SRC) $(TUBE_OBJ)
-	$(CC) $(CFLAGS) -c $(TUBE_SRC)
-	$(CC) $(CFLAGS) -o $@ $(TUBE_OBJ)	
-	
+tube:SRC=$(TUBE_SRC)
 
-launch: $(LAUNCH_SRC) $(LAUNCH_OBJ)
-	$(CC) $(CFLAGS) -c $(LAUNCH_SRC)
-	$(CC) $(CFLAGS) -o $(LAUNCH_OBJ)
+launch:SRC=$(LAUNCH_SRC)
+
 
 test:
 	gcc ./tube.c -g -o tube.out && ./tube.out /bin/cat ./testdoc.txt , /usr/bin/head -2
