@@ -18,7 +18,7 @@ int ngStrcomp(char*, char*);
 int init(int,char**,char**);
 void waitForProcess(pid_t, char***,int);
 char* readFile(int);
-
+void breakUp(char**, char***, char*, int);
 int main(int argv, char* argc[],char* env[]){
 	return init(argv,argc,env);
 }
@@ -28,7 +28,8 @@ int init(int argv,char* argc[], char* env[]){
   int i,toReturn;
  pid_t* loopBuffer = malloc(sizeof(pid_t)*LOOPS);
  pid_t child; 
-char*** broken = breakByDelimiter(argc,",",argv);
+char*** broken;// breakByDelimiter(argc,",",argv);
+breakUp(argv,broken,",",1);
 int* pipefd = malloc(sizeof(int)*2);
 int success = pipe(pipefd);
 	for(i=0;i<LOOPS;i++){
@@ -179,6 +180,39 @@ int* createPipe(){
 	}
 	return NULL;
 }
+//Breakup all values in the system
+void breakUp(char** lineIn, char*** lineOut, char* delimiter, int start){
+	//Move lineIn to start Position
+	for(;start>0;start--){
+		*lineIn++;
+		}
+	//Search for all non null values
+	while(*lineIn != NULL){
+		//Create a new array if a comma is found
+		if(ngStrcomp(*lineIn,delimiter){
+			*lineOut++;
+		}
+		**lineOut++ = *lineIn;
+	}
+}
+
+//Parse a user line to a char array
+void parse(char* line, char** argv){
+	while(*line !='\0'){
+		//Remove all white space
+		while(*line ==' ' || *line == '\n' || *line == '\t'){
+			*line++ = '\0';
+		}
+		*argv++ = line;
+		//skip passed all whitespace
+		while(*line ==' ' || *line == '\n' || *line == '\t'){
+			*line++;
+		}
+	}
+	*argv = '\0'; //The end of the arguments have been found
+}
+
+
 
 //Compare to strings
 int ngStrcomp(char* s, char* t){
