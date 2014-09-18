@@ -19,6 +19,7 @@ int ngStrcomp(char*, char*);
 int init(int,char**,char**);
 void waitForProcess(pid_t, char***,int);
 char* readFile(int);
+
 int main(int argv, char* argc[],char* env[]){
 	return init(argv,argc,env);
 }
@@ -35,20 +36,17 @@ int success = pipe(pipefd);
 		//Create a child
 	        child = fork();
 		loopBuffer[i] = child;
+		close(pipefd[i]);
 		//Break up function
 		toReturn = splitChildren(argv,argc,env,child,i,broken,pipefd);
-		//Leave loop if a child
-		if(child==0){
-		 break;	
-		}
+		
 	}
 
 	//Go through all child processes and wait for them to finish
-	if(child!=0){
-		for(i=0;i<LOOPS;i++){
+	
 	  	waitForProcess(loopBuffer[i],broken,i);
-		}
-	}
+		
+	
 	return toReturn;
 }
 
@@ -63,19 +61,28 @@ int splitChildren(int argv, char** argc, char** env,pid_t child, int childNumber
 	if(childNumber == 0){
 	  /* Set stdout to the output side of the pipe*/
         dup2(pipefd[1], 1);
-        close(pipefd[1]);
+	close(pipefd[1]);
         close(pipefd[0]);
-        execv(broken[childNumber][0], broken[childNumber+1]);
+       	char * test[] = {"wc","-l",NULL};
+        execvp(broken[childNumber][0], broken[childNumber]);
+	//execvp(test[0],test); 
         perror("Failed to execute0\n");
-        exit(1);
-	}else if(childNumber == 1){
-		   /* Set stdin to the input side of the pipe*/
-        dup2(pipefd[0], 0);
-        close(pipefd[0]);
-        execv(broken[childNumber][0], broken[childNumber+1]);
-        perror("Failed to execute1\n");
-        
-	exit(1);
+	
+	
+        exit(0);
+	}else{
+	/* Set stdin to the input side of the pipe*/        
+	dup2(pipefd[0], 0);
+	close(0);
+	char * test[] = {"wc",NULL};
+        execvp(broken[childNumber][0], broken[childNumber]);
+	//execvp(test[0],test);        
+	perror("Failed to execute1\n");
+	//close(pipefd[0]);
+	//close(pipefd[1]);
+	
+	
+	exit(0);
 	
 	}
 	}else if(child==-1){
@@ -86,10 +93,9 @@ int splitChildren(int argv, char** argc, char** env,pid_t child, int childNumber
 
 	//is a parent process
 	//Print child pid
-	fprintf(stderr,"%s: $$ = %d\n",broken[0][childNumber],child);
+	fprintf(stderr,"%s: $$ = %d\n",broken[childNumber][0],child);
 	//Close the pipe from the parents perspectice
-	close(pipefd[0]);
-	close(pipefd[1]);
+	
 	
 
 	return 0;
@@ -110,44 +116,54 @@ char* readFile(int fd){
 void waitForProcess(pid_t child, char*** broken,int childNumber){
 		int status;
   //Wait for child to finish
-        	
-	waitpid(child,&status,0);
+        int i = 0;
+	while(waitpid(-1,&status,0) > 0){
 	//Print child status
-	fprintf(stderr,"%s: $? = %d\n", broken[0][childNumber],status);
+	fprintf(stderr,"%s: $? = %d\n", broken[i][0],status);
+	i++;
+	}
 }
 
-//Break up a string or a set of string by a delimiter
+//Break up a string or a set of string by a delimiter (Fix Function)
 char*** breakByDelimiter(char** string,char* delimiter,int length){
-	int boolean = 0,i,j,m;
-	//int length = sizeof(string)/sizeof(string[0]);
-	char** left_half = malloc(sizeof(char*)*3);
-	char** right_half = malloc(sizeof(char*)*3); 	
-	char** functions = malloc(sizeof(char*)*2);
-	//Break the string in half based on the delimiter
-	for(i=1,j=0,m=0;i<length;i++){
-		if(m==0 || boolean==1 && m==1){
-		  functions[m++] = string[i];
-		  }
- 	if(boolean==0 && ngStrcomp(string[i],delimiter)==0){
-		  boolean = 1;
-		  j=0;
-		}else if (boolean == 0){
-		  left_half[j++] = string[i];
-		}else{
-		  right_half[j++] = string[i];
+	int i,j,m,k,previousDelimiter;
+	char*** toReturn;	
+	
+	//Count the number of the delimiter in the char array
+	for(i=1;i<length;i++){
+		if(ngStrcomp(string[i], delimiter)==0){
+			j++;
 		}
 	}
-	char*** toReturn = malloc(sizeof(char**)*2);
-	toReturn[0] = functions;
-	toReturn[1] = left_half;
-	toReturn[2] = right_half;
 	
-	for(i=1;i<=2;i++){
-	  if(toReturn[i][0]==NULL){
-		toReturn[i][0] = "0";	
-		} 
-	}	
-	//Return the two arrays
+		
+	toReturn = malloc(sizeof(char**)*(j+2));
+	
+	//Break the string in half based on the delimiter
+	for(i=1,j=0,previousDelimiter=0;i<length;i++,previousDelimiter++){	
+
+	if(ngStrcomp(string[i],delimiter)==0 || i==length-1){
+		  //Create a new char** array
+		  toReturn[j++] = malloc(sizeof(char**)*(previousDelimiter+2));
+		  toReturn[j-1][0] = 0;
+		  toReturn[j-1][previousDelimiter+1] = 0;
+		  previousDelimiter=0;
+		}
+	}
+	
+
+	for(i=1,j=0,k=0;i<length;i++){
+		if(ngStrcomp(string[i],delimiter)==0){
+			j++;
+			k=0;
+		}else{
+		  toReturn[j][k++] = string[i];
+		}
+	
+	}
+	
+		
+	//Return the arrays
 	return toReturn;
 
 }
@@ -178,5 +194,8 @@ int ngStrcomp(char* s, char* t){
 	return s[i] - t[i];
 	
 }
+
+
+
 
 
