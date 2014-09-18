@@ -11,7 +11,6 @@ Lab: 2
 #include <stdio.h>
 #include <stdlib.h>
 
-
 int* createPipe();
 char*** breakByDelimiter(char**,char*, int);
 int splitChildren(int,char**,char**, pid_t, int,char***,int*);
@@ -44,7 +43,7 @@ int success = pipe(pipefd);
 
 	//Go through all child processes and wait for them to finish
 	
-	  	waitForProcess(loopBuffer[i],broken,i);
+	waitForProcess(loopBuffer[i],broken,i);
 		
 	
 	return toReturn;
@@ -59,27 +58,28 @@ int splitChildren(int argv, char** argc, char** env,pid_t child, int childNumber
 	 //is a child process
 	 
 	if(childNumber == 0){
+	
 	  /* Set stdout to the output side of the pipe*/
-        dup2(pipefd[1], 1);
+        dup2(pipefd[1], STDOUT_FILENO);
 	close(pipefd[1]);
         close(pipefd[0]);
-       	char * test[] = {"wc","-l",NULL};
-        execvp(broken[childNumber][0], broken[childNumber]);
-	//execvp(test[0],test); 
+       	char** test = broken[childNumber];
+        execvp(test[0], test);
+
         perror("Failed to execute0\n");
-	
 	
         exit(0);
 	}else{
 	/* Set stdin to the input side of the pipe*/        
-	dup2(pipefd[0], 0);
+	dup2(pipefd[0], STDIN_FILENO);
 	close(0);
-	char * test[] = {"wc",NULL};
-        execvp(broken[childNumber][0], broken[childNumber]);
-	//execvp(test[0],test);        
+	readFile(pipefd[0]);
+	char** test = broken[childNumber];
+        execvp(test[0], test);
+       
 	perror("Failed to execute1\n");
-	//close(pipefd[0]);
-	//close(pipefd[1]);
+	close(pipefd[0]);
+	close(pipefd[1]);
 	
 	
 	exit(0);
@@ -95,9 +95,6 @@ int splitChildren(int argv, char** argc, char** env,pid_t child, int childNumber
 	//Print child pid
 	fprintf(stderr,"%s: $$ = %d\n",broken[childNumber][0],child);
 	//Close the pipe from the parents perspectice
-	
-	
-
 	return 0;
 	}
 
@@ -144,19 +141,20 @@ char*** breakByDelimiter(char** string,char* delimiter,int length){
 
 	if(ngStrcomp(string[i],delimiter)==0 || i==length-1){
 		  //Create a new char** array
+		 
 		  toReturn[j++] = malloc(sizeof(char**)*(previousDelimiter+2));
 		  toReturn[j-1][0] = 0;
 		  toReturn[j-1][previousDelimiter+1] = 0;
 		  previousDelimiter=0;
 		}
 	}
-	
 
 	for(i=1,j=0,k=0;i<length;i++){
 		if(ngStrcomp(string[i],delimiter)==0){
 			j++;
 			k=0;
 		}else{
+		 
 		  toReturn[j][k++] = string[i];
 		}
 	
