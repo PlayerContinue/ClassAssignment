@@ -6,18 +6,15 @@
 # This is a Makefile for my lab assignment. It allows me to easily and accurately rebuild
 # the lab assignment.
 
-
-
-
 # EXECUTABLES is a Make Variable (similar to an environment variable) that lists all the
 # "executables" associated with the lab. 
-EXECUTABLES=launch.out
-SRC=launch.c
-OBJ=launch.o
-
-tube: EXECUTABLE = tube.out
-tube: SRC = tube.c
-tube: OBJ = tube.out
+EXECUTABLES=launch tube
+SRC=launch.c tube.c
+OBJ=launch.o tube.o
+TUBE_SRC= tube.c
+TUBE_OBJ= tube.o
+LAUNCH_SRC=launch.c
+LAUNCH_OBJ=tube.o
 # The CC and CFLAGS variables are defined to ensure I'm using the native compiler and
 # that the correct command-line options are set
 CC=gcc
@@ -41,14 +38,18 @@ $(EXECUTABLES): $(SRC)
 clean:
 	rm -f $(EXECUTABLES) $(OBJ) *~
 
-all: $(EXECUTABLES)
+tube: tube.o
+	$(CC) -c $(TUBE_SRC)
+		
+tube.o: 
+	$(CC) -o $@ $(TUBE_OBJ)
 
-tube:
+launch: launch.o
+	$(CC) -c launch
 
-launch: 
+launch.o: $(CC) -o $(LAUNCH_OBJ)
 
 test:
-
 	gcc ./tube.c -g -o tube.out && ./tube.out /bin/cat ./testdoc.txt , /usr/bin/head -2
 
 test3:
