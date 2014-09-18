@@ -5,6 +5,13 @@ Class: Comp 322
 Lab: 2
 **/
 #define LOOPS 2
+#define DEBUGLOOPS for(i=0;i<LOOPS;i++){ \
+		for(k=0;toReturn[i][k]!=NULL;k++){\
+			\
+			printf("[%d][%d]:%s\n",i,k,toReturn[i][k]);\
+		}\
+	}
+	
 #include <fcntl.h>              
 #include <unistd.h>
 #include <sys/wait.h>
@@ -18,7 +25,7 @@ int ngStrcomp(char*, char*);
 int init(int,char**,char**);
 void waitForProcess(pid_t, char***,int);
 char* readFile(int);
-void breakUp(char**, char***, char*, int);
+int breakUp(char**, char***, char*, int);
 int main(int argv, char* argc[],char* env[]){
 	return init(argv,argc,env);
 }
@@ -28,15 +35,14 @@ int init(int argv,char* argc[], char* env[]){
   int i,toReturn;
  pid_t* loopBuffer = malloc(sizeof(pid_t)*LOOPS);
  pid_t child; 
-char*** broken;// breakByDelimiter(argc,",",argv);
-breakUp(argv,broken,",",1);
+char*** broken = breakByDelimiter(argc,",",argv);
 int* pipefd = malloc(sizeof(int)*2);
 int success = pipe(pipefd);
 	for(i=0;i<LOOPS;i++){
 		//Create a child
 	        child = fork();
 		loopBuffer[i] = child;
-		close(pipefd[i]);
+		
 		//Break up function
 		toReturn = splitChildren(argv,argc,env,child,i,broken,pipefd);
 		
@@ -45,8 +51,8 @@ int success = pipe(pipefd);
 	//Go through all child processes and wait for them to finish
 	
 	waitForProcess(loopBuffer[i],broken,i);
-		
-	
+	close(pipefd[0]);
+	close(pipefd[1]);
 	return toReturn;
 }
 
@@ -62,8 +68,7 @@ int splitChildren(int argv, char** argc, char** env,pid_t child, int childNumber
 	
 	  /* Set stdout to the output side of the pipe*/
         dup2(pipefd[1], STDOUT_FILENO);
-	close(pipefd[1]);
-        close(pipefd[0]);
+	
        	char** test = broken[childNumber];
         execvp(test[0], test);
 
@@ -71,18 +76,14 @@ int splitChildren(int argv, char** argc, char** env,pid_t child, int childNumber
 	
         exit(0);
 	}else{
+	int hold;	
 	/* Set stdin to the input side of the pipe*/        
 	dup2(pipefd[0], STDIN_FILENO);
-	close(0);
-	readFile(pipefd[0]);
+	//readFile(pipefd[0]);
 	char** test = broken[childNumber];
-        execvp(test[0], test);
-       
-	perror("Failed to execute1\n");
-	close(pipefd[0]);
-	close(pipefd[1]);
-	
-	
+        if((hold = execvp(test[0], test))==-1){
+		perror("Failed to execute1\n");
+	}
 	exit(0);
 	
 	}
@@ -143,9 +144,9 @@ char*** breakByDelimiter(char** string,char* delimiter,int length){
 	if(ngStrcomp(string[i],delimiter)==0 || i==length-1){
 		  //Create a new char** array
 		 
-		  toReturn[j++] = malloc(sizeof(char**)*(previousDelimiter+2));
-		  toReturn[j-1][0] = 0;
-		  toReturn[j-1][previousDelimiter+1] = 0;
+		  toReturn[j++] = malloc(sizeof(char**)*(previousDelimiter+1));
+		  toReturn[j-1][0] = NULL;
+		  //toReturn[j-1][previousDelimiter+1] = NULL;
 		  previousDelimiter=0;
 		}
 	}
@@ -161,7 +162,7 @@ char*** breakByDelimiter(char** string,char* delimiter,int length){
 	
 	}
 	
-		
+	DEBUGLOOPS	
 	//Return the arrays
 	return toReturn;
 
@@ -181,19 +182,22 @@ int* createPipe(){
 	return NULL;
 }
 //Breakup all values in the system
-void breakUp(char** lineIn, char*** lineOut, char* delimiter, int start){
+int breakUp(char** lineIn, char*** lineOut, char* delimiter, int start){
+	int toReturn=0,i=0;
 	//Move lineIn to start Position
-	for(;start>0;start--){
-		*lineIn++;
-		}
+	*lineIn+=start;
+	lineOut = malloc(sizeof(char**)*LOOPS);
+	*lineOut = malloc(sizeof(char*)*LOOPS); 
 	//Search for all non null values
 	while(*lineIn != NULL){
 		//Create a new array if a comma is found
-		if(ngStrcomp(*lineIn,delimiter){
+		if(ngStrcomp(*lineIn,delimiter)){
 			*lineOut++;
+			*lineOut = malloc(sizeof(char*)*LOOPS);
 		}
 		**lineOut++ = *lineIn;
 	}
+	return LOOPS;
 }
 
 //Parse a user line to a char array
