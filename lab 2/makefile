@@ -38,16 +38,14 @@ $(EXECUTABLES): $(SRC)
 clean:
 	rm -f $(EXECUTABLES) $(OBJ) *~
 
-tube: tube.o
-	$(CC) -c $(TUBE_SRC)
-		
-tube.o: 
-	$(CC) -o $@ $(TUBE_OBJ)
+tube: $(TUBE_SRC) $(TUBE_OBJ)
+	$(CC) $(CFLAGS) -c $(TUBE_SRC)
+	$(CC) $(CFLAGS) -o $@ $(TUBE_OBJ)	
+	
 
-launch: launch.o
-	$(CC) -c launch
-
-launch.o: $(CC) -o $(LAUNCH_OBJ)
+launch: $(LAUNCH_SRC) $(LAUNCH_OBJ)
+	$(CC) $(CFLAGS) -c $(LAUNCH_SRC)
+	$(CC) $(CFLAGS) -o $(LAUNCH_OBJ)
 
 test:
 	gcc ./tube.c -g -o tube.out && ./tube.out /bin/cat ./testdoc.txt , /usr/bin/head -2
