@@ -5,12 +5,12 @@ Class: Comp 322
 Lab: 2
 **/
 #define LOOPS 2
-#define DEBUGLOOPS for(i=0;i<LOOPS;i++){ \
-		for(k=0;toReturn[i][k]!=NULL;k++){\
+#define DEBUGLOOPS /*for(i=0;i<LOOPS;i++){ \
+		for(k=0;toReturn2[0][i][k]!=NULL;k++){\
 			\
 			printf("[%d][%d]:%s\n",i,k,toReturn[i][k]);\
 		}\
-	}
+	}*/
 	
 #include <fcntl.h>              
 #include <unistd.h>
@@ -19,8 +19,8 @@ Lab: 2
 #include <stdlib.h>
 
 int* createPipe();
-char*** breakByDelimiter(char**,char*, int);
-int splitChildren(int,char**,char**, pid_t, int,char***,int*);
+int breakByDelimiter(char****,char**,char*, int);
+int splitChildren(int,char**,char**, pid_t, int,char***,int*,int);
 int ngStrcomp(char*, char*);
 int init(int,char**,char**);
 void waitForProcess(pid_t, char***,int);
@@ -33,63 +33,83 @@ int main(int argv, char* argc[],char* env[]){
 //Startup function for this program
 int init(int argv,char* argc[], char* env[]){
   int i,toReturn;
+int* pipefd;
  pid_t* loopBuffer = malloc(sizeof(pid_t)*LOOPS);
  pid_t child; 
-char*** broken = breakByDelimiter(argc,",",argv);
-int* pipefd = malloc(sizeof(int)*2);
-int success = pipe(pipefd);
-	for(i=0;i<LOOPS;i++){
+char**** broken2 = malloc(sizeof(char***)*1);
+int numExecs = breakByDelimiter(broken2,argc,",",argv);
+char*** broken = broken2[0];
+if(numExecs>1){
+ pipefd = malloc(sizeof(int)*2*(numExecs-1));
+ //Check for bad pipes
+ for(i=0;i<2;i++){
+	if(pipe(pipefd + (2*i))<0){
+		perror("Couldn't create pipes");
+	}
+}
+	}else{
+		pipefd = NULL;
+	}
+	for(i=0;i<numExecs;i++){
 		//Create a child
 	        child = fork();
 		loopBuffer[i] = child;
 		
 		//Break up function
-		toReturn = splitChildren(argv,argc,env,child,i,broken,pipefd);
+		toReturn = splitChildren(argv,argc,env,child,i,broken,pipefd,numExecs);
 		
 	}
 
 	//Go through all child processes and wait for them to finish
 	
 	waitForProcess(loopBuffer[i],broken,i);
-	close(pipefd[0]);
-	close(pipefd[1]);
+	
+	//Close all the pipes
+	for(i=0;pipefd!=NULL && i<numExecs;i++){	
+		close(pipefd[i]);
+	}
 	return toReturn;
 }
 
 //Split functions based on being child or adult
-int splitChildren(int argv, char** argc, char** env,pid_t child, int childNumber, char** broken[],int* pipefd){
+int splitChildren(int argv, char** argc, char** env,pid_t child, int childNumber, char** broken[],int* pipefd, int numChild){
 //Allocate a pipe 
 	
-	
+	int i;
 	if(child==0){
-	 //is a child process
-	 
-	if(childNumber == 0){
+	 	//is a child process
+		int pipeSize = (sizeof(pipefd)/sizeof(pipefd[0])); 
+		if(pipefd!=NULL && childNumber < numChild-1){
+		//Not last command, set child output to STDOUT
+			//fprintf(stderr,"childNumber: %d,pipepos: %d, pipes:%d\n",childNumber, 1+(childNumber*2), pipeSize);		
+			if(dup2(pipefd[(childNumber*2)+1],1)<0){
+				perror("Unable to open out go pipe");
+			}
+		}
 	
-	  /* Set stdout to the output side of the pipe*/
-        dup2(pipefd[1], STDOUT_FILENO);
-	
-       	char** test = broken[childNumber];
-        execvp(test[0], test);
-
-        perror("Failed to execute0\n");
-	
-        exit(0);
-	}else{
-	int hold;	
-	/* Set stdin to the input side of the pipe*/        
-	dup2(pipefd[0], STDIN_FILENO);
-	//readFile(pipefd[0]);
-	char** test = broken[childNumber];
-        if((hold = execvp(test[0], test))==-1){
-		perror("Failed to execute1\n");
-	}
-	exit(0);
-	
-	}
+		//If not the first child, set input to STDIN       
+		if(pipefd!=NULL && childNumber!=0){
+		//fprintf(stderr,"childNumber: %d,pipepos: %d, pipes:%d\n",childNumber, (2*childNumber)-2, pipeSize);	
+			
+			if(dup2(pipefd[(childNumber*2)-2],0)<0){
+				perror("Unable to open input pipe");
+			}
+			//readFile(pipefd[(childNumber*2)-2]);
+			//readFile(pipefd[0]);		
+		}
+		
+		if(execvp(broken[childNumber][0], broken[childNumber])==-1){
+			perror("Failed to execute1\n");
+		}
+		
+		for(i=0;i<pipeSize*2;i++){
+			//close(pipefd[i]);
+		}
+		
+		exit(0);
 	}else if(child==-1){
-	//Is an error
-	perror("ERROR: A child could not be created");
+		//Is an error
+		perror("ERROR: A	 child could not be created");
 	
 	}else{
 
@@ -107,7 +127,7 @@ int splitChildren(int argv, char** argc, char** env,pid_t child, int childNumber
 char* readFile(int fd){
 	char* Buffer = malloc(sizeof(char)*1024);
 	read(fd,Buffer,1024);
-	fprintf(stderr,"%s\n",Buffer);
+	fprintf(stderr,"File:%s\n",Buffer);
 	return Buffer;
 }
 
@@ -124,10 +144,10 @@ void waitForProcess(pid_t child, char*** broken,int childNumber){
 }
 
 //Break up a string or a set of string by a delimiter (Fix Function)
-char*** breakByDelimiter(char** string,char* delimiter,int length){
+int breakByDelimiter(char**** toReturn2,char** string,char* delimiter,int length){
 	int i,j,m,k,previousDelimiter;
-	char*** toReturn;	
-	
+	int returnInt;	
+	char*** toReturn;
 	//Count the number of the delimiter in the char array
 	for(i=1;i<length;i++){
 		if(ngStrcomp(string[i], delimiter)==0){
@@ -135,22 +155,22 @@ char*** breakByDelimiter(char** string,char* delimiter,int length){
 		}
 	}
 	
-		
+	returnInt = j+1;
 	toReturn = malloc(sizeof(char**)*(j+2));
 	
 	//Break the string in half based on the delimiter
 	for(i=1,j=0,previousDelimiter=0;i<length;i++,previousDelimiter++){	
 
 	if(ngStrcomp(string[i],delimiter)==0 || i==length-1){
-		  //Create a new char** array
-		 
+		  //Create a new char** array either at end of string or when delimiter found
 		  toReturn[j++] = malloc(sizeof(char**)*(previousDelimiter+1));
 		  toReturn[j-1][0] = NULL;
 		  //toReturn[j-1][previousDelimiter+1] = NULL;
 		  previousDelimiter=0;
 		}
 	}
-
+	
+	//Store values in the string
 	for(i=1,j=0,k=0;i<length;i++){
 		if(ngStrcomp(string[i],delimiter)==0){
 			j++;
@@ -161,10 +181,10 @@ char*** breakByDelimiter(char** string,char* delimiter,int length){
 		}
 	
 	}
-	
+	toReturn2[0] = toReturn;
 	DEBUGLOOPS	
-	//Return the arrays
-	return toReturn;
+	//Return the number of children
+	return returnInt;
 
 }
 

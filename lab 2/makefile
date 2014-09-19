@@ -29,8 +29,7 @@ all:$(EXECUTABLES)
 # each time my source file is modified.
 $(EXECUTABLES):$(SRC)
 	$(CC) $(CFLAGS) -c $(SRC)
-	$(CC) $(CFLAGS) -o $@ $(OBJ)
-
+	$(CC) $(CFLAGS) -o $@ $(OBJ)	
 
 # By convention, I always have a target called
 # "clean" that I used to define all temporary
