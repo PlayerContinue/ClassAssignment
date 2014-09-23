@@ -40,6 +40,7 @@ char**** broken2 = malloc(sizeof(char***)*1);
 int numExecs = breakByDelimiter(broken2,argc,",",argv);
 char*** broken = broken2[0];
 if(numExecs>1){
+ //Allocate pipes: number of pipes = number of execs * 2
  pipefd = malloc(sizeof(int)*2*(numExecs-1));
  //Check for bad pipes
  for(i=0;i<2;i++){
@@ -62,7 +63,7 @@ if(numExecs>1){
 
 	//Go through all child processes and wait for them to finish
 	
-	waitForProcess(loopBuffer[i],broken,i);
+	waitForProcess(loopBuffer[i],broken,numExecs);
 	
 	//Close all the pipes
 	for(i=0;pipefd!=NULL && i<numExecs;i++){	
@@ -73,15 +74,14 @@ if(numExecs>1){
 
 //Split functions based on being child or adult
 int splitChildren(int argv, char** argc, char** env,pid_t child, int childNumber, char** broken[],int* pipefd, int numChild){
-//Allocate a pipe 
+
 	
 	int i;
 	if(child==0){
 	 	//is a child process
 		int pipeSize = (sizeof(pipefd)/sizeof(pipefd[0])); 
 		if(pipefd!=NULL && childNumber < numChild-1){
-		//Not last command, set child output to STDOUT
-			//fprintf(stderr,"childNumber: %d,pipepos: %d, pipes:%d\n",childNumber, 1+(childNumber*2), pipeSize);		
+		//Not last command, set child output to STDOUT		
 			if(dup2(pipefd[(childNumber*2)+1],1)<0){
 				perror("Unable to open out go pipe");
 			}
@@ -89,13 +89,12 @@ int splitChildren(int argv, char** argc, char** env,pid_t child, int childNumber
 	
 		//If not the first child, set input to STDIN       
 		if(pipefd!=NULL && childNumber!=0){
-		//fprintf(stderr,"childNumber: %d,pipepos: %d, pipes:%d\n",childNumber, (2*childNumber)-2, pipeSize);	
+			
 			
 			if(dup2(pipefd[(childNumber*2)-2],0)<0){
 				perror("Unable to open input pipe");
 			}
-			//readFile(pipefd[(childNumber*2)-2]);
-			//readFile(pipefd[0]);		
+				
 		}
 		
 		if(execvp(broken[childNumber][0], broken[childNumber])==-1){
@@ -103,13 +102,13 @@ int splitChildren(int argv, char** argc, char** env,pid_t child, int childNumber
 		}
 		
 		for(i=0;i<pipeSize*2;i++){
-			//close(pipefd[i]);
+			close(pipefd[i]);
 		}
 		
 		exit(0);
 	}else if(child==-1){
 		//Is an error
-		perror("ERROR: A	 child could not be created");
+		perror("ERROR: A child could not be created");
 	
 	}else{
 
@@ -132,14 +131,20 @@ char* readFile(int fd){
 }
 
 //Wait for process to finish
-void waitForProcess(pid_t child, char*** broken,int childNumber){
+void waitForProcess(pid_t child, char*** broken,int numExecs){
 		int status;
   //Wait for child to finish
-        int i = 0;
+        int i = 0,k;
+	
+	int childReturns[numExecs];
 	while(waitpid(-1,&status,0) > 0){
-	//Print child status
-	fprintf(stderr,"%s: $? = %d\n", broken[i][0],status);
-	i++;
+		childReturns[i++] = status;
+	}
+	//Print out child status
+	for(k=0;k<i;k++){
+		
+		fprintf(stderr,"%s: $? = %d\n", broken[k][0],childReturns[k]);
+	
 	}
 }
 
