@@ -13,29 +13,28 @@ Lab_Name: Catcher
 #include <unistd.h>
 #include <time.h>
 #include <stdio.h>
-
+#include <stdlib.h>
 //Prototypes
 int get_signal_value(char*);
-void createHandlers(int, **char);
+void createHandlers(int, char**);
 char* signal_term(int);
 void handler(int);
 time_t getCurrentTime();
+int ngStrcomp(char*, char*);
 
 //Main Function
-int main(int argv, **char argc){
-	fprintf(stderr, "catcher: $$ = %d", getpid());
+int main(int argv, char** argc){
+	fprintf(stderr, "catcher: $$ = %d\n", (int)getpid());
 	createHandlers(argv, argc);
 	return 0;
 }
 
 //Create the signal handlers
-void createHandlers(int numberSignals, **char currentArrays){
-	int i = &currentArrays;
-	int err;
+void createHandlers(int numberSignals, char** currentArrays){
+	signal(SIGTERM,handler);	
 	//Create the handlers	
-	while (*currentArray != NULL){
-		err = signal(get_signal_value(*currentArrays++), &handler);
-		if (err == SIG_ERR){
+	while (*currentArrays != NULL){
+		if ((signal(get_signal_value(*currentArrays++), handler)) == SIG_ERR){
 			//Error found, throw error
 			perror("ERROR: Could not create Signal Handler");
 		}
@@ -50,27 +49,32 @@ void createHandlers(int numberSignals, **char currentArrays){
 //Function called when signal is recieved
 void handler(int signalValue){
 	//Create new signal creater
-	signal(signalValue, &handler);
+	signal(signalValue, handler);
 
 	//Create the static value	
 	static int count_terms = 0;
 
 	//Print SIGTERM caught at 1234(time)
-	printf("%s caught at %d", signal_term(signalValue), (int)getCurrentTime());
+	fprintf(stderr,"%s caught at %d\n", signal_term(signalValue), (int)getCurrentTime());
 	//Increment if term, else reset
 	if (signalValue == SIG_TERM){
 		count_terms++;
+		//End function if enough terms recieved
+		if(count_terms==3){
+			exit(0);
+		}	
 	}
 	else{
 		count_terms = 0;
 	}
 
-	//handler(signal);		
+	
+
+	//handler(signalValue);		
 }
 
 time_t getCurrentTime(){
 	int current_time = time(NULL);
-	char* time_string;
 
 	if (current_time == ((time_t)-1)){
 		(void)fprintf(stderr, "Failure to compute the current time");
@@ -82,23 +86,23 @@ time_t getCurrentTime(){
 
 //Return the integer value of the signal
 int get_signal_value(char* signalName){
-	if (ngCompstr("SIGINT", signalName) == 0){
-		return 2;
+	if (ngStrcomp("SIGINT", signalName) == 0){
+		return SIGINT;
 	}
-	else if (ngCompstr("HUP", signalName) == 0){
-		return 1;
+	else if (ngStrcomp("HUP", signalName) == 0){
+		return SIGHUP;
 	}
-	else if (ngCompstr("QUIT", signalName) == 0){
-		return 3;
+	else if (ngStrcomp("QUIT", signalName) == 0){
+		return SIGQUIT;
 	}
-	else if (ngCompstr("KILL", signalName) == 0){
-		return 4;
+	else if (ngStrcomp("KILL", signalName) == 0){
+		return SIGKILL;
 	}
 	else if (ngStrcomp("TRAP", signalName) == 0){
-		return 5;
+		return SIGTRAP;
 	}
 	else if (ngStrcomp("IOT", signalName) == 0){
-		return 6;
+		return SIGIOT;
 	}
 	else if (ngStrcomp("BUS", signalName) == 0){
 		return 7;
@@ -172,8 +176,6 @@ int get_signal_value(char* signalName){
 	else if (ngStrcomp("PWR", signalName) == 0){
 		return 30;
 	}
-	/*SIGTRAP 5 SIGIOT 6 SIGBUS 7 SIGFPE 8 SIGKILL 9 SIGUSR1 10 SIGSEGV 11 SIGUSR2 12 SIGPIPE 13 SIGALRM 14 SIGTERM 15 SIGSTKFLT 16 SIGCHLD 17 SIGCONT 18 SIGSTOP 19 SIGTSTP 20 SIGTTIN 21 SIGTTOU 22 SIGURG 23 SIGXCPU 24 SIGXFSZ 25 SIGVTALRM 26 SIGPROF 27 SIGWINCH 28 SIGIO 29 SIGPWR 30*/
-
 
 }
 
@@ -276,7 +278,7 @@ char* signal_term(int signalNumber){
 }
 
 //Compare two strings
-int ngCompstr(char* s, char* t){
+int ngStrcomp(char* s, char* t){
 	int i;
 	for (i = 0; s[i] == t[i]; i++){
 		if (s[i] == '\0')

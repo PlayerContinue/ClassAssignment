@@ -5,23 +5,21 @@
 #Executable information and src and objects
 EXECUTABLES = catcher
 SRC = catcher.c
-OBJ = ($SRC:.c=.o)
+OBJ = $(SRC:.c=.o)
 
 CC = gcc
 CFLAGS = -g 
 
 #Occur in all cases
-all: $(EXECUTABLES)
+all:$(EXECUTABLES)
 
-$(EXECUTABLES): $(SRC)
+$(EXECUTABLES):$(SRC)
 	$(CC) $(CFLAGS) -c $(SRC)
 	$(CC) $(CFLAGS) -o $@ $(OBJ)
 
-catcher:
+catcher:$(EXECUTABLES)
 
 #Remove all .o and executable files
 clean:
 	rm -f $(EXECUTABLES) $(OBJ) *~ 
-	
-	
 
