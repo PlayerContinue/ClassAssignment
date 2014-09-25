@@ -5,13 +5,20 @@ Class: Comp 322
 Lab: 2
 **/
 #define LOOPS 2
-#define DEBUGLOOPS /*for(i=0;i<LOOPS;i++){ \
+#define DEBUGLOOPS for(i=0;i<LOOPS;i++){ \
 		for(k=0;toReturn2[0][i][k]!=NULL;k++){\
 			\
 			printf("[%d][%d]:%s\n",i,k,toReturn[i][k]);\
 		}\
-	}*/
-	
+		printf("[%d][%d]:%s\n",i,k,toReturn[i][k]);\
+	}
+#define DEBUGLOOPS2 int k;\
+		for(k=0;broken[childNumber][k]!=NULL;k++){\
+			\
+			fprintf(stderr,"[%d][%d]:%s\n",childNumber,k,broken[childNumber][k]);\
+		}\
+		fprintf(stderr,"[%d][%d]:%s\n",childNumber,k,broken[childNumber][k]);
+		
 #include <fcntl.h>              
 #include <unistd.h>
 #include <sys/wait.h>
@@ -43,11 +50,12 @@ if(numExecs>1){
  //Allocate pipes: number of pipes = number of execs * 2
  pipefd = malloc(sizeof(int)*2*(numExecs-1));
  //Check for bad pipes
- for(i=0;i<2;i++){
-	if(pipe(pipefd + (2*i))<0){
-		perror("Couldn't create pipes");
-	}
-}
+	 /*for(i=0;i<numExecs;i++){
+		if(pipe(pipefd + (2*i))<0){
+			perror("Couldn't create pipes");
+		}
+	}*/
+	pipe(pipefd);
 	}else{
 		pipefd = NULL;
 	}
@@ -60,14 +68,17 @@ if(numExecs>1){
 		toReturn = splitChildren(argv,argc,env,child,i,broken,pipefd,numExecs);
 		
 	}
-
-	//Go through all child processes and wait for them to finish
-	
-	waitForProcess(loopBuffer[i],broken,numExecs);
-	
 	//Close all the pipes
 	for(i=0;pipefd!=NULL && i<numExecs;i++){	
-		close(pipefd[i]);
+			
+			close(pipefd[i]);
+		
+	}
+	//Go through all child processes and wait for them to finish
+	if(child!=0){	
+	waitForProcess(loopBuffer[i],broken,numExecs);
+	
+	
 	}
 	return toReturn;
 }
@@ -81,31 +92,32 @@ int splitChildren(int argv, char** argc, char** env,pid_t child, int childNumber
 	 	//is a child process
 		int pipeSize = (sizeof(pipefd)/sizeof(pipefd[0])); 
 		if(pipefd!=NULL && childNumber < numChild-1){
+		
 		//Not last command, set child output to STDOUT		
 			if(dup2(pipefd[(childNumber*2)+1],1)<0){
 				perror("Unable to open out go pipe");
 			}
+		}else{
+			close(pipefd[1]);
 		}
 	
 		//If not the first child, set input to STDIN       
 		if(pipefd!=NULL && childNumber!=0){
-			
-			
 			if(dup2(pipefd[(childNumber*2)-2],0)<0){
 				perror("Unable to open input pipe");
 			}
+			
 				
-		}
+		}else{
+		  close(pipefd[0]);
+		}	
 		
+		DEBUGLOOPS2
 		if(execvp(broken[childNumber][0], broken[childNumber])==-1){
 			perror("Failed to execute1\n");
 		}
-		
-		for(i=0;i<pipeSize*2;i++){
-			close(pipefd[i]);
-		}
-		
-		exit(0);
+		//readFile(pipefd[(childNumber*2)-2]);
+			
 	}else if(child==-1){
 		//Is an error
 		perror("ERROR: A child could not be created");
@@ -168,9 +180,9 @@ int breakByDelimiter(char**** toReturn2,char** string,char* delimiter,int length
 
 	if(ngStrcomp(string[i],delimiter)==0 || i==length-1){
 		  //Create a new char** array either at end of string or when delimiter found
-		  toReturn[j++] = malloc(sizeof(char**)*(previousDelimiter+1));
+		  toReturn[j++] = malloc(sizeof(char**)*(previousDelimiter + 1));
 		  toReturn[j-1][0] = NULL;
-		  //toReturn[j-1][previousDelimiter+1] = NULL;
+		  toReturn[j-1][previousDelimiter] = NULL;
 		  previousDelimiter=0;
 		}
 	}
@@ -243,7 +255,7 @@ void parse(char* line, char** argv){
 
 
 
-//Compare to strings
+//Compare two strings
 int ngStrcomp(char* s, char* t){
 	int i;
 	for (i = 0; s[i] == t[i]; i++){
