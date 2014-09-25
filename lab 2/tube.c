@@ -5,19 +5,19 @@ Class: Comp 322
 Lab: 2
 **/
 #define LOOPS 2
-#define DEBUGLOOPS for(i=0;i<LOOPS;i++){ \
+#define DEBUGLOOPS /*for(i=0;i<LOOPS;i++){ \
 		for(k=0;toReturn2[0][i][k]!=NULL;k++){\
 			\
 			printf("[%d][%d]:%s\n",i,k,toReturn[i][k]);\
 		}\
 		printf("[%d][%d]:%s\n",i,k,toReturn[i][k]);\
-	}
-#define DEBUGLOOPS2 int k;\
+	}*/
+#define DEBUGLOOPS2 /*int k;\
 		for(k=0;broken[childNumber][k]!=NULL;k++){\
 			\
 			fprintf(stderr,"[%d][%d]:%s\n",childNumber,k,broken[childNumber][k]);\
 		}\
-		fprintf(stderr,"[%d][%d]:%s\n",childNumber,k,broken[childNumber][k]);
+		fprintf(stderr,"[%d][%d]:%s\n",childNumber,k,broken[childNumber][k]);*/
 		
 #include <fcntl.h>              
 #include <unistd.h>
