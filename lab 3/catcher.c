@@ -92,7 +92,7 @@ time_t getCurrentTime(){
 
 //Return the integer value of the signal
 int get_signal_value(char* signalName){
-	if (ngStrcomp("SIGINT", signalName) == 0){
+	if (ngStrcomp("INT", signalName) == 0){
 		return SIGINT;
 	}
 	else if (ngStrcomp("HUP", signalName) == 0){
