@@ -14,6 +14,10 @@ Lab_Name: Catcher
 #include <time.h>
 #include <stdio.h>
 #include <stdlib.h>
+
+//typedef
+typedef void (*sighandler_t)(int);
+
 //Prototypes
 int get_signal_value(char*);
 void createHandlers(int, char**);
@@ -49,11 +53,13 @@ void createHandlers(int numberSignals, char** currentArrays){
 //Function called when signal is recieved
 void handler(int signalValue){
 	//Create new signal creater
-	signal(signalValue, handler);
+	sighandler_t phandler = signal(signalValue, handler);
 
 	//Create the static value	
 	static int count_terms = 0;
-
+	static int total_signal_count = 0;
+	//Increase number of signals caught
+	total_signal_count++;
 	//Print SIGTERM caught at 1234(time)
 	fprintf(stderr,"%s caught at %d\n", signal_term(signalValue), (int)getCurrentTime());
 	//Increment if term, else reset
@@ -61,6 +67,7 @@ void handler(int signalValue){
 		count_terms++;
 		//End function if enough terms recieved
 		if(count_terms==3){
+			fprintf(stderr,"catcher: Total signals count = %d\n",total_signal_count);
 			exit(0);
 		}	
 	}
@@ -68,9 +75,11 @@ void handler(int signalValue){
 		count_terms = 0;
 	}
 
-	
-
-	//handler(signalValue);		
+	//Run previous Handler (currently has error, reruns current one)
+	//fprintf(stderr,"%s,%s",phandler,handler);
+	//if(phandler != handler){
+		//phandler(signalValue);	
+	//}	
 }
 
 time_t getCurrentTime(){
