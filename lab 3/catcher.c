@@ -75,11 +75,8 @@ void handler(int signalValue){
 		count_terms = 0;
 	}
 
-	//Run previous Handler (currently has error, reruns current one)
-	fprintf(stderr,"%s,%s",phandler,handler);
-	if(phandler != handler){
-		phandler(signalValue);	
-	}	
+	
+		
 }
 
 time_t getCurrentTime(){
