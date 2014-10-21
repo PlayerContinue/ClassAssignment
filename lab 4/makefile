@@ -25,3 +25,6 @@ clean:
 
 test:
 	make && ./launch-philosophers 2 2
+
+test2:
+	make && ./launch-philosophers 3 3
