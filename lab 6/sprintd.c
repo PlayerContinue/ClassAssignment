@@ -160,13 +160,12 @@ void createDaemon(pidIdent* ident){
 void createMole(int child,const char* name){
 	
 	idents.children[child] = fork();
-	fprintf(stderr,"%d\n",idents.children[child]);
 	if(idents.children[child] == 0){
 		//Convert to a mole
 		char* temp[] = {"mole", name,NULL};
-		if(execv("mole",temp)==-1){
-		perror(NULL);
-		exit(1);
+	if(execv("mole",temp)==-1){
+		perror("File Missing");
+		//exit(1);
 	}
 	}else if(idents.children[child] == -1){
 		//Failure has occured, throw an error and exit

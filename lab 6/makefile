@@ -19,11 +19,11 @@ $(EXECUTABLES):$(SRC)
 	$(CC) $(CFLAGS) -o $@ $(OBJ)
 
 #Compile sprintd
-sprintd:sprintd.c
+sprintd:SRC=sprintd.c
 
 #Compile mole
-mole:mole.c
+mole:SRC=mole.c
 
 #Remove all .o and executable files
 clean:
-	rm -f $(EXECUTABLES) $(OBJ) *~
+	rm -f $(EXECUTABLES) $(OBJ) sprintd.o mole.o *~
