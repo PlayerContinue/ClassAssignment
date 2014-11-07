@@ -103,7 +103,6 @@ void makeDaemon(pidIdent *ident){
 	
 	for(i=3;i<limit.rlim_max;i++){
 		if(close(i)==-1){
-		perror(NULL);
 		}
 	} 
 	
@@ -161,11 +160,11 @@ void createDaemon(pidIdent* ident){
 void createMole(int child,const char* name){
 	
 	idents.children[child] = fork();
-	
+	fprintf(stderr,"%d\n",idents.children[child]);
 	if(idents.children[child] == 0){
 		//Convert to a mole
-		char* temp[] = {"./mole", name,NULL};
-		if(execv(temp[0],temp)==-1){
+		char* temp[] = {"mole", name,NULL};
+		if(execv("mole",temp)==-1){
 		perror(NULL);
 		exit(1);
 	}
@@ -197,9 +196,9 @@ Catch SIG_User1. Kill mole1 then create a new mole if one does not exist in that
 */
 void handleSig_User1(int val){
 	//Kill the mole
-	if(kill(idents.children[0],15)==-1){
-		kill(idents.sid,SIGKILL);
+	if(idents.children[0]!=0 && kill(idents.children[0],SIGKILL)==-1){
 		perror(NULL);
+		kill(idents.sid,SIGKILL);
 		exit(1);
 	}
 	
@@ -226,9 +225,10 @@ Catch SIG_User2. Kill mole2
 */
 void handleSig_User2(int val){
 //Kill the mole
-	if(kill(idents.children[1],15)==-1){
+	if(idents.children[1]!=0 && kill(idents.children[1],SIGKILL)==-1){
+		perror(NULL);		
 		kill(idents.sid,SIGKILL);
-		perror(NULL);
+		
 		exit(1);
 	}
 	
