@@ -29,7 +29,7 @@ typedef struct{
 //Global Variables
 //***************************
 pidIdent idents; //Contains SID and PID's for files
-
+char cwd[1024];
 //***************************
 //Prototypes
 //***************************
@@ -87,6 +87,12 @@ void makeDaemon(pidIdent *ident){
 		exit(1);
 	}
 	
+	//get the current directory
+	getcwd(cwd,sizeof(cwd));
+	
+
+	strcat(cwd,"/mole\0");
+
 	//Change the directory to /
 	if(chdir("/")==-1){
 		perror(NULL);
@@ -163,7 +169,7 @@ void createMole(int child,const char* name){
 	if(idents.children[child] == 0){
 		//Convert to a mole
 		char* temp[] = {"mole", name,NULL};
-	if(execv("mole",temp)==-1){
+	if(execv(cwd,temp)==-1){
 		perror("File Missing");
 		//exit(1);
 	}
@@ -194,7 +200,7 @@ void handleSig_Term(int val){
 Catch SIG_User1. Kill mole1 then create a new mole if one does not exist in that slot
 */
 void handleSig_User1(int val){
-	//Kill the mole
+	//Kill the mole if it exists
 	if(idents.children[0]!=0 && kill(idents.children[0],SIGKILL)==-1){
 		perror(NULL);
 		kill(idents.sid,SIGKILL);

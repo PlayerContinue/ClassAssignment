@@ -5,13 +5,25 @@ Trivial program to print a line and die when killed
 */
 
 #include <stdio.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <pwd.h>
+
 
 int main(int argc, char** argv){
+	char cwd[1024];
+	//Get the home directory
+	struct passwd *pw = getpwuid(getuid());
+	const char *hmedir = pw->pw_dir;	
+	strcat(cwd,hmedir);
+	strcat(cwd,"/lab6.log\0");
 
-	FILE *fp = fopen("lab6.log\0","w+");
+	//open the file
+
+	FILE *fp = fopen(cwd,"w+");
 	if(fp==NULL){
 		
-	fp = fopen("lab6.log\0","w+");	
+	fp = fopen(cwd,"w+");	
 	}
 
 
