@@ -20,10 +20,10 @@ int main(int argc, char** argv){
 
 	//open the file
 
-	FILE *fp = fopen(cwd,"w+");
+	FILE *fp = fopen(cwd,"a");
 	if(fp==NULL){
 		
-	fp = fopen(cwd,"w+");	
+	fp = fopen(cwd,"a");	
 	}
 
 
