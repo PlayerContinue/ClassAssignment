@@ -5,7 +5,7 @@
 
 #Executable information and src and objects
 EXECUTABLES = sprintd mole
-SRC = sprintd.c mole.c 
+SRC = spiritd.c mole.c 
 OBJ = $(SRC:.c=.o)
 
 CC = gcc
@@ -19,7 +19,7 @@ $(EXECUTABLES):$(SRC)
 	$(CC) $(CFLAGS) -o $@ $(OBJ)
 
 #Compile sprintd
-sprintd:SRC=sprintd.c
+sprintd:SRC=spiritd.c
 
 #Compile mole
 mole:SRC=mole.c
