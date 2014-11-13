@@ -4,7 +4,7 @@
 
 
 #Executable information and src and objects
-EXECUTABLES = sprintd mole
+EXECUTABLES = spiritd mole
 SRC = spiritd.c mole.c 
 OBJ = $(SRC:.c=.o)
 
