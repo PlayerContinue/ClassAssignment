@@ -5,6 +5,7 @@ Version: 0.0.1
 
 A deamon which kills children processes and creates a new children process when called
 */
+#define DEBUGGING 1
 #define NUM_CHILD 2
 #include <unistd.h>
 #include <stdlib.h>
@@ -59,10 +60,8 @@ int main(int argc, char** argv){
 */
 void daemonRun(){
 	srand(time(NULL));
+	//Run forever
 	while(1){
-
-		
-	
 	}
 
 }
@@ -148,7 +147,9 @@ void createDaemon(pidIdent* ident){
 		perror(NULL);
 		exit(1);
 	}else{
+		#ifdef DEBUGGING
 		printf("PID: %d",desc);
+		#endif
 		//Currently in the parent, end the program succesfully
 		exit(0);
 	}
@@ -188,6 +189,8 @@ void createMole(int child,const char* name){
  Handle the catching of sig_term. Kill all children and the process itself
 */
 void handleSig_Term(int val){
+	kill(idents.children[0],SIGKILL);
+	kill(idents.children[1],SIGKILL);
 	kill(idents.sid,SIGTERM);
 	exit(0);
 }
