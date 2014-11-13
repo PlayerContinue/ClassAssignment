@@ -16,14 +16,13 @@ int main(int argc, char** argv){
 	//Get the home directory
 	struct passwd *pw = getpwuid(getuid());
 	const char *hmedir = pw->pw_dir;	
-	strcat(cwd,hmedir);
+	strcpy(cwd,hmedir);
 	strcat(cwd,"/lab6.log\0");
 
 	//open the file
 
 	FILE *fp = fopen(cwd,"a");
 	if(fp==NULL){
-		
 	fp = fopen(cwd,"a");	
 	}
 
