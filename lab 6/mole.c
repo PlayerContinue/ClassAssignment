@@ -27,8 +27,8 @@ int main(int argc, char** argv){
 	fp = fopen(cwd,"a");	
 	}
 
-
-
+	chmod(cwd,0666);
+	
 if(fputs("Pop \0",fp)==EOF){
 perror("work failed");
 
