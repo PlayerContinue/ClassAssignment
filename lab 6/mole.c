@@ -5,6 +5,7 @@ Trivial program to print a line and die when killed
 */
 
 #include <stdio.h>
+#include <string.h>
 #include <unistd.h>
 #include <sys/types.h>
 #include <pwd.h>

@@ -14,6 +14,7 @@ A deamon which kills children processes and creates a new children process when 
 #include <sys/stat.h>
 #include <sys/time.h>
 #include <sys/resource.h>
+#include <string.h>
 #include <stdio.h>
 #include <errno.h>
 #include <signal.h>
@@ -250,9 +251,7 @@ void handleSig_User2(int val){
 		}
 	}else{
 		//Create mole2
-		
 			createMole(1,"mole2");
-		
 	}
 
 }
