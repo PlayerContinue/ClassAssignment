@@ -113,12 +113,12 @@ void matrix_run(int block_size, int scalar, int size){
 	aio_write(response);
 	while(aio_error(response)==EINPROGRESS);
 	aio_return(response);
-	writeOffset= writeOffset + strlen(previous);
+	writeOffset+=strlen(previous);
 	
 	//Wait for progress
 	while(aio_error(request)==EINPROGRESS);
 
-	}while(aio_return(request)>0 && count<=(size/32));
+	}while(aio_return(request)>0 && writeOffset<=size);
 
 	diffTime = diffTime - time(NULL);
 	printf("Time Difference: %d\n",diffTime);
@@ -143,11 +143,10 @@ int matrix_add(char curBuffer[], int block_size,int scalar, char previous[]){
 		if((curBuffer[i]<='9' && curBuffer[i]>='0')|| curBuffer[i] == '-'){ //Add the current number, or negative symbol to the site
 			numbers[pos]=curBuffer[i];				
 			pos++;
-			
 		}else if(curBuffer[i]==','){
 			count++;//Increase count
 			numbers[pos] = '\0';
-			*matrix = atoi(numbers) + scalar;
+			*matrix = atoi(numbers);// + scalar;
 			if(bool == 1){
 			 //Continue to add numbers to previous
 			 sprintf(previous+strlen(previous),"%d,",*matrix);
