@@ -31,7 +31,10 @@ int main(int argc, char** argv, char** env){
 	int block_size = size/block;
 	srand(time(NULL));
 	int scalar = rand()%200;
+	time_t diffTime = time(NULL));
 	matrix_run(block_size,scalar,size);
+	diffTime = diffTime - time(NULL));
+	printf("\nTime Difference: %l",diffTime);
 }
 
 
@@ -48,7 +51,7 @@ void matrix_run(int block_size, int scalar, int size){
 	int writeOffset = 0;
 	//preset previous to empty
 	previous[0] = '\0';
-
+	
 	//Create the request object
 	struct aiocb* request = malloc(sizeof(struct aiocb));
 	request->aio_buf = next;
