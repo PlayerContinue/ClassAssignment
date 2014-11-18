@@ -10,6 +10,7 @@ Read a file and add a value to an matrix
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/time.h>
+#include <time.h>
 #include <string.h>
 #include <aio.h>
 #include <unistd.h>
