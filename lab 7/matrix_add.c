@@ -48,7 +48,7 @@ void matrix_run(int block_size, int scalar, int size){
 	char curBuffer[block_size], previous[block_size];
 	char next[block_size];
 	int offset = 0; //Keep the current file offset
-	int writeOffset = 0;
+	int writeOffset = 0, currentOff;
 	time_t diffTime = time(NULL);
 	//preset previous to empty
 	previous[0] = '\0';
@@ -99,7 +99,7 @@ void matrix_run(int block_size, int scalar, int size){
 		printf("next: %s,curBuffer: %s\n",next, curBuffer);
 	#endif
 	
-	matrix_add(curBuffer,block_size,scalar,previous);
+	currentOff = matrix_add(curBuffer,block_size,scalar,previous);
 	
 	#ifdef DEBUGGING
 		printf("previous: %s\n",previous);
@@ -110,7 +110,7 @@ void matrix_run(int block_size, int scalar, int size){
 	aio_write(response);
 	while(aio_error(response)==EINPROGRESS);
 	aio_return(response);
-	writeOffset+=block_size;
+	writeOffset+=currentOff;
 	
 	//Wait for progress
 	while(aio_error(request)==EINPROGRESS);
@@ -118,7 +118,7 @@ void matrix_run(int block_size, int scalar, int size){
 	}while(aio_return(request)>0 && offset<=size);
 
 	diffTime = diffTime - time(NULL);
-	printf("Time Difference: %l\n",diffTime);
+	printf("Time Difference: %d\n",diffTime);
 }
 
 
@@ -127,17 +127,22 @@ void matrix_run(int block_size, int scalar, int size){
 //********************************************************************************************************
 /*
 Take the numbers out of the char array, convert to variables, and add the scalar
+
+returns the size of the write
 */
-void matrix_add(char curBuffer[], int block_size,int scalar, char previous[]){
+int matrix_add(char curBuffer[], int block_size,int scalar, char previous[]){
 	char numbers[10];
 	int* matrix = malloc(sizeof(int)*block_size/3);
+	int count=0;
 	int i =0, pos=0, bool =0; //counter for for loops
 	//Break the value into a number
 	for(i=0;i<block_size;i++){
 		if((curBuffer[i]<='9' && curBuffer[i]>='0')|| curBuffer[i] == '-'){ //Add the current number, or negative symbol to the site
-			numbers[pos]=curBuffer[i];			
+			numbers[pos]=curBuffer[i];				
 			pos++;
+			count++;
 		}else if(curBuffer[i]==','){
+			
 			numbers[pos] = '\0';
 			*matrix = atoi(numbers) + scalar;
 			if(bool == 1){
@@ -157,7 +162,7 @@ void matrix_add(char curBuffer[], int block_size,int scalar, char previous[]){
 			pos = 0;
 		}
 	}
-	
+	return count;
 
 }
 
