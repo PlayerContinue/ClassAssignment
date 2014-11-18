@@ -159,6 +159,7 @@ int matrix_add(char curBuffer[], int block_size,int scalar, char previous[]){
 			printf("char: %s, matrix: %d\n",previous,*matrix);
 		#endif
 			matrix++;
+			count++;
 			pos = 0;
 		}
 	}
