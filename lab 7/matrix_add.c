@@ -48,7 +48,7 @@ void matrix_run(int block_size, int scalar, int size){
 	char curBuffer[block_size], previous[block_size];
 	char next[block_size];
 	int offset = 0; //Keep the current file offset
-	int writeOffset = 0, currentOff;
+	int writeOffset = 0, currentOff=0;
 	time_t diffTime = time(NULL);
 	//preset previous to empty
 	previous[0] = '\0';
@@ -88,8 +88,12 @@ void matrix_run(int block_size, int scalar, int size){
 	if(aio_read(request)!=0){
 		perror("Read Error");
 	}
+	
+	//Change the offsets
 	offset = offset + block_size;
-
+	
+	
+	
 	#ifdef DEBUGGING
 		printf("Size: %d, Block_size:%d, offset: %d\n",size,block_size,offset);
 		perror(NULL);
@@ -99,7 +103,7 @@ void matrix_run(int block_size, int scalar, int size){
 		printf("next: %s,curBuffer: %s\n",next, curBuffer);
 	#endif
 	
-	currentOff = matrix_add(curBuffer,block_size,scalar,previous);
+	matrix_add(curBuffer,block_size,scalar,previous);
 	
 	#ifdef DEBUGGING
 		printf("previous: %s\n",previous);
@@ -110,12 +114,12 @@ void matrix_run(int block_size, int scalar, int size){
 	aio_write(response);
 	while(aio_error(response)==EINPROGRESS);
 	aio_return(response);
-	writeOffset+=currentOff;
+	writeOffset= writeOffset + strlen(previous);
 	
 	//Wait for progress
 	while(aio_error(request)==EINPROGRESS);
 
-	}while(aio_return(request)>0 && offset<=size);
+	}while(aio_return(request)>0 && writeOffset<=size);
 
 	diffTime = diffTime - time(NULL);
 	printf("Time Difference: %d\n",diffTime);
@@ -140,7 +144,7 @@ int matrix_add(char curBuffer[], int block_size,int scalar, char previous[]){
 		if((curBuffer[i]<='9' && curBuffer[i]>='0')|| curBuffer[i] == '-'){ //Add the current number, or negative symbol to the site
 			numbers[pos]=curBuffer[i];				
 			pos++;
-			count++;
+			count+=32;
 		}else if(curBuffer[i]==','){
 			
 			numbers[pos] = '\0';
