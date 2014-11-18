@@ -37,14 +37,15 @@ return: the matrix as an int[][]
 */
 void createMatrix(int size){
 	//Make random
-	int i,j;
+	int i,j,var;
 		srand(time(NULL));
 		for(i=0;i<size;i++){
 			for(j=0;j<size;j++){
-					 //printf("%d,",(rand()%2==0 ? numberBetween(0,100) : (-1*numberBetween(0,100))));  
-					 write(1,(rand()%2==0 ? numberBetween(0,100) : (-1*numberBetween(0,100))),32);
+					 //printf("%d,",(rand()%2==0 ? numberBetween(0,100) : (-1*numberBetween(0,100))));
+						var = (rand()%2==0 ? numberBetween(0,100) : (-1*numberBetween(0,100)));
+					 write(1,var,sizeof(int));
 			}
-			printf("\n");
+			//printf("\n");
 		}
 }
 
