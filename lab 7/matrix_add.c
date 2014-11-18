@@ -31,10 +31,9 @@ int main(int argc, char** argv, char** env){
 	int block_size = size/block;
 	srand(time(NULL));
 	int scalar = rand()%200;
-	time_t diffTime = time(NULL);
+	
 	matrix_run(block_size,scalar,size);
-	diffTime = diffTime - time(NULL);
-	printf("\nTime Difference: %l",diffTime);
+	
 }
 
 
@@ -49,6 +48,7 @@ void matrix_run(int block_size, int scalar, int size){
 	char next[block_size];
 	int offset = 0; //Keep the current file offset
 	int writeOffset = 0;
+	time_t diffTime = time(NULL);
 	//preset previous to empty
 	previous[0] = '\0';
 	
@@ -115,6 +115,9 @@ void matrix_run(int block_size, int scalar, int size){
 	while(aio_error(request)==EINPROGRESS);
 
 	}while(aio_return(request)>0 && offset<=size);
+
+	diffTime = diffTime - time(NULL);
+	printf("Time Difference: %l\n",diffTime);
 }
 
 
