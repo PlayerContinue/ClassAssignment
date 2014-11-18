@@ -31,9 +31,9 @@ int main(int argc, char** argv, char** env){
 	int block_size = size/block;
 	srand(time(NULL));
 	int scalar = rand()%200;
-	time_t diffTime = time(NULL));
+	time_t diffTime = time(NULL);
 	matrix_run(block_size,scalar,size);
-	diffTime = diffTime - time(NULL));
+	diffTime = diffTime - time(NULL);
 	printf("\nTime Difference: %l",diffTime);
 }
 
