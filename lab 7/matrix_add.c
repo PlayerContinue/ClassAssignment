@@ -19,7 +19,7 @@ Read a file and add a value to an matrix
 //Prototypes
 //******************************
 void matrix_run(int block_size, int scalar, int size);
-void matrix_add(char curBuffer[], int block_size,int scalar, char preBuffer[]);
+int matrix_add(char curBuffer[], int block_size,int scalar, char preBuffer[]);
 
 //******************************
 //Functions
