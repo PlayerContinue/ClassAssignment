@@ -41,7 +41,8 @@ void createMatrix(int size){
 		srand(time(NULL));
 		for(i=0;i<size;i++){
 			for(j=0;j<size;j++){
-					 printf("%d,",(rand()%2==0 ? numberBetween(0,100) : (-1*numberBetween(0,100))));  
+					 //printf("%d,",(rand()%2==0 ? numberBetween(0,100) : (-1*numberBetween(0,100))));  
+					 write(1,(rand()%2==0 ? numberBetween(0,100) : (-1*numberBetween(0,100))),32);
 			}
 			printf("\n");
 		}
