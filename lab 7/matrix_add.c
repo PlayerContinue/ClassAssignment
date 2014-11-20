@@ -6,7 +6,6 @@ File_Name: Matrix_add
 
 Read a file and add a value to an matrix
 */
-//#define DEBUGGING 1
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/time.h>
@@ -19,23 +18,31 @@ Read a file and add a value to an matrix
 //Prototypes
 //******************************
 void matrix_run(int block_size, int scalar, int size);
-int matrix_add(char curBuffer[], int block_size,int scalar, char preBuffer[]);
+int matrix_add(int curBuffer[], int block_size,int scalar, int preBuffer[]);
 
 //******************************
 //Functions
 //******************************
 
 int main(int argc, char** argv, char** env){
+	if(argc<3){
+		fprintf(stderr,"Too few arguments");
+		exit(1);
+	}	
+
 	int size = atoi(argv[1]);
 	size = size*size;
 	int block = atoi(argv[2]);
 	int block_size = size/block;
 	srand(time(NULL));
 	int scalar = rand()%200;
-	
-	matrix_run(block_size,scalar,size);
-	
-}
+
+	if(block_size%4==0){
+		matrix_run(block_size,scalar,size);
+	}else{
+		fprintf(stderr,"Too small to be an int");
+	}
+}	
 
 
 //********************************************************************************************************
@@ -45,14 +52,12 @@ int main(int argc, char** argv, char** env){
 Launch the current matrix read, write, and add procedure
 */
 void matrix_run(int block_size, int scalar, int size){
-	char curBuffer[block_size], previous[block_size];
-	char next[block_size];
+	int curBuffer[block_size], previous[block_size];
+	int next[block_size];
 	int offset = 0; //Keep the current file offset
-	int writeOffset = 0, count=0;
+	int writeOffset = 0, count=0, readOffset = 0;
 	time_t diffTime = time(NULL);
-	//preset previous to empty
-	previous[0] = '\0';
-	
+		
 	//Create the request object
 	struct aiocb* request = malloc(sizeof(struct aiocb));
 	request->aio_buf = next;
@@ -67,61 +72,42 @@ void matrix_run(int block_size, int scalar, int size){
 	response->aio_nbytes = block_size;
 	response->aio_offset = 0;
 	
-	//Perform first request
-	if(aio_read(request)!=0){
-		perror("Read Error");
-	}
-
-	while(aio_error(request)==EINPROGRESS);
-
-	if(aio_return(request)<0){
-		perror("Return Error");
-	}
-
-	
 	//Get the return from the read request
 	do{
 	memcpy(curBuffer,next,block_size);
 	request->aio_offset = offset; // Set the offset
 	//Create a read request
 	if(aio_read(request)!=0){
-		perror("Read Error");
+		//perror("Read Error");
 	}
 	
 	//Change the offsets
-	offset = offset + block_size;
+	offset = offset + readOffset;
 	
+	matrix_add(curBuffer,block_size,scalar,previous);
 	
-	
-	#ifdef DEBUGGING
-		printf("Size: %d, Block_size:%d, offset: %d\n",size,block_size,offset);
-		perror(NULL);
-	#endif
-	
-	#ifdef DEBUGGING
-		printf("next: %s,curBuffer: %s\n",next, curBuffer);
-	#endif
-	
-	count+=matrix_add(curBuffer,block_size,scalar,previous);
-	
-	#ifdef DEBUGGING
-		printf("previous: %s\n",previous);
-	#endif	
-
 	//Write the results currently stored to a file
 	response->aio_offset = writeOffset;
+	response->aio_nbytes = readOffset;
+
 	aio_write(response);
+	
 	while(aio_error(response)==EINPROGRESS);
+	
 	aio_return(response);
-	writeOffset+=strlen(previous);
+	
+	writeOffset= writeOffset + readOffset;
 	
 	//Wait for progress
-	while(aio_error(request)==EINPROGRESS);
+	//while(aio_error(request)==EINPROGRESS);
+	
+	readOffset= aio_return(request);
 
-	}while(aio_return(request)>0 && writeOffset<=size);
-
-	diffTime = diffTime - time(NULL);
-	printf("Time Difference: %d\n",diffTime);
+	}while(readOffset>0 && offset<=size);
+	
+	//Print end time
+	diffTime = time(NULL)-diffTime;
+	fprintf(stderr,"Time Difference: %d\n",(int)diffTime);
 }
 
 
@@ -133,39 +119,11 @@ Take the numbers out of the char array, convert to variables, and add the scalar
 
 returns number of numbers
 */
-int matrix_add(char curBuffer[], int block_size,int scalar, char previous[]){
-	char numbers[10];
-	int* matrix = malloc(sizeof(int)*block_size/3);
-	int count=0;
-	int i =0, pos=0, bool =0; //counter for for loops
-	//Break the value into a number
+int matrix_add(int curBuffer[], int block_size,int scalar, int previous[]){
+	int i; //For loop
 	for(i=0;i<block_size;i++){
-		if((curBuffer[i]<='9' && curBuffer[i]>='0')|| curBuffer[i] == '-'){ //Add the current number, or negative symbol to the site
-			numbers[pos]=curBuffer[i];				
-			pos++;
-		}else if(curBuffer[i]==','){
-			count++;//Increase count
-			numbers[pos] = '\0';
-			*matrix = atoi(numbers);// + scalar;
-			if(bool == 1){
-			 //Continue to add numbers to previous
-			 sprintf(previous+strlen(previous),"%d,",*matrix);
-			}else{
-			 //Reset previous to empty for new writing
-			 //Copy the value into the array
-			 sprintf(previous,"%d,",*matrix);
-			 bool =1;
-			}
-			
-		#ifdef DEBUGGING
-			printf("char: %s, matrix: %d\n",previous,*matrix);
-		#endif
-			matrix++;
-			pos = 0;
-		}
+		previous[i] = curBuffer[i] + scalar;
 	}
-	return count;
-
 }
 
 
