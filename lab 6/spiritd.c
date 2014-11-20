@@ -63,6 +63,7 @@ void daemonRun(){
 	srand(time(NULL));
 	//Run forever
 	while(1){
+	wait();
 	}
 
 }

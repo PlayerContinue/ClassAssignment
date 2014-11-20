@@ -43,6 +43,8 @@ perror("work failed");
 
 }
 fflush(fp);
-	while(1);
+	while(1){
+	wait();
+	}
 	
 }
