@@ -44,7 +44,7 @@ perror("work failed");
 }
 fflush(fp);
 	while(1){
-	wait();
+	wait(NULL);
 	}
 	
 }
