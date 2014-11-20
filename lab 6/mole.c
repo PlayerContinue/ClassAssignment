@@ -9,7 +9,7 @@ Trivial program to print a line and die when killed
 #include <unistd.h>
 #include <sys/types.h>
 #include <pwd.h>
-
+#include <sys/wait.h>
 
 int main(int argc, char** argv){
 	char cwd[1024];

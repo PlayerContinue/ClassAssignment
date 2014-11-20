@@ -13,6 +13,7 @@ A deamon which kills children processes and creates a new children process when 
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/time.h>
+#include <sys/wait.h>
 #include <sys/resource.h>
 #include <string.h>
 #include <stdio.h>
